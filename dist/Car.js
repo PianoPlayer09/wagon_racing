@@ -1,73 +1,70 @@
 /**This is Code for "Italian Car" object and its properties */
-var __classPrivateFieldSet = (this && this.__classPrivateFieldSet) || function (receiver, state, value, kind, f) {
-    if (kind === "m") throw new TypeError("Private method is not writable");
-    if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a setter");
-    if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot write private member to an object whose class did not declare it");
-    return (kind === "a" ? f.call(receiver, value) : f ? f.value = value : state.set(receiver, value)), value;
-};
-var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (receiver, state, kind, f) {
-    if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a getter");
-    if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
-    return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
-};
-var _ItalianCar_color, _ItalianCar_type, _ItalianCar_handling, _ItalianCar_acceleration, _ItalianCar_maxSpeed, _ItalianCar_currentSpeed, _ItalianCar_x, _ItalianCar_y;
-// Preset configurations for different kart types. Taken from form submission before joining game.
-var KART_PRESETS = {
+//Might have to add more properties later on like drift, and direction later on(can def as a normal vector based on user input )
+// Preset configurations for different kart types. Taken from form submission before joining game.(Can move to seperate file for cleaner code)
+const KART_PRESETS = {
     light: { handling: 0.9, acceleration: 0.18, maxSpeed: 4.4 },
     medium: { handling: 0.7, acceleration: 0.15, maxSpeed: 5.0 },
     heavy: { handling: 0.5, acceleration: 0.12, maxSpeed: 5.6 }
 };
-var ItalianCar = /** @class */ (function () {
-    function ItalianCar(color, type) {
-        _ItalianCar_color.set(this, void 0);
-        _ItalianCar_type.set(this, void 0);
-        _ItalianCar_handling.set(this, void 0);
-        _ItalianCar_acceleration.set(this, void 0);
-        _ItalianCar_maxSpeed.set(this, void 0);
-        _ItalianCar_currentSpeed.set(this, void 0);
-        _ItalianCar_x.set(this, void 0);
-        _ItalianCar_y.set(this, void 0);
-        __classPrivateFieldSet(this, _ItalianCar_color, color, "f");
+export default class ItalianCar {
+    #color;
+    #type;
+    #theta; // direction angle
+    #handling;
+    #acceleration;
+    #maxSpeed;
+    #currentSpeed;
+    #x;
+    #y;
+    #coins; //def the speedboost
+    constructor(color, type) {
+        this.#color = color;
         if (!KART_PRESETS[type]) {
             type = 'medium'; // Default to medium if invalid type
         }
-        __classPrivateFieldSet(this, _ItalianCar_type, type, "f");
-        var preset = KART_PRESETS[type];
-        __classPrivateFieldSet(this, _ItalianCar_handling, preset.handling, "f");
-        __classPrivateFieldSet(this, _ItalianCar_acceleration, preset.acceleration, "f");
-        __classPrivateFieldSet(this, _ItalianCar_maxSpeed, preset.maxSpeed, "f");
-        __classPrivateFieldSet(this, _ItalianCar_currentSpeed, 0, "f");
-        __classPrivateFieldSet(this, _ItalianCar_x, 0, "f"); // Initial X position  --- NOT SURE WHERE WE NEED TO SET THIS BUT YEA
-        __classPrivateFieldSet(this, _ItalianCar_y, 0, "f"); // Initial Y position  --- NOT SURE WHERE WE NEED TO SET THIS BUT YEA
+        this.#type = type;
+        const preset = KART_PRESETS[type];
+        this.#handling = preset.handling;
+        this.#acceleration = preset.acceleration;
+        this.#maxSpeed = preset.maxSpeed;
+        this.#currentSpeed = 0;
+        this.#x = 0; // Initial X position  --- NOT SURE WHERE WE NEED TO SET THIS BUT YEA
+        this.#y = 0; // Initial Y position  --- NOT SURE WHERE WE NEED TO SET THIS BUT YEA
+        this.#coins = 0;
+        this.#theta = 0; // initial direction angle ---MIGHT have to change to 90. Depends on how we implement certain things
     }
-    ItalianCar.prototype.getColor = function () {
-        return __classPrivateFieldGet(this, _ItalianCar_color, "f");
-    };
-    ItalianCar.prototype.getType = function () {
-        return __classPrivateFieldGet(this, _ItalianCar_type, "f");
-    };
-    ItalianCar.prototype.getHandling = function () {
-        return __classPrivateFieldGet(this, _ItalianCar_handling, "f");
-    };
-    ItalianCar.prototype.getAcceleration = function () {
-        return __classPrivateFieldGet(this, _ItalianCar_acceleration, "f");
-    };
-    ItalianCar.prototype.getMaxSpeed = function () {
-        return __classPrivateFieldGet(this, _ItalianCar_maxSpeed, "f");
-    };
-    ItalianCar.prototype.getCurrentSpeed = function () {
-        return __classPrivateFieldGet(this, _ItalianCar_currentSpeed, "f");
-    };
-    ItalianCar.prototype.setCurrentSpeed = function (speed) {
-        __classPrivateFieldSet(this, _ItalianCar_currentSpeed, Math.min(speed, __classPrivateFieldGet(this, _ItalianCar_maxSpeed, "f")), "f");
-    };
-    ItalianCar.prototype.getPosition = function () {
-        return { x: __classPrivateFieldGet(this, _ItalianCar_x, "f"), y: __classPrivateFieldGet(this, _ItalianCar_y, "f") };
-    };
-    ItalianCar.prototype.setPosition = function (x, y) {
-        __classPrivateFieldSet(this, _ItalianCar_x, x, "f");
-        __classPrivateFieldSet(this, _ItalianCar_y, y, "f");
-    };
-    return ItalianCar;
-}());
-_ItalianCar_color = new WeakMap(), _ItalianCar_type = new WeakMap(), _ItalianCar_handling = new WeakMap(), _ItalianCar_acceleration = new WeakMap(), _ItalianCar_maxSpeed = new WeakMap(), _ItalianCar_currentSpeed = new WeakMap(), _ItalianCar_x = new WeakMap(), _ItalianCar_y = new WeakMap();
+    get color() {
+        return this.#color;
+    }
+    get type() {
+        return this.#type;
+    }
+    get handling() {
+        return this.#handling;
+    }
+    get acceleration() {
+        return this.#acceleration;
+    }
+    get maxSpeed() {
+        return this.#maxSpeed;
+    }
+    get currentSpeed() {
+        return this.#currentSpeed;
+    }
+    set currentSpeed(speed) {
+        this.#currentSpeed = Math.min(speed, this.#maxSpeed);
+    }
+    get position() {
+        return { x: this.#x, y: this.#y };
+    }
+    setPosition(x, y) {
+        this.#x = x;
+        this.#y = y;
+    }
+    get coins() {
+        return this.#coins;
+    }
+    set coins(num) {
+        this.#coins = num;
+    }
+}

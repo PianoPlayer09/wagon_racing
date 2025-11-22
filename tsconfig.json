@@ -3,7 +3,9 @@
     "rootDir": "src",
     "outDir": "dist",
     "allowJs": true,
-    "strict": false
+    "strict": false,
+    "target": "ESNext",
+    "module": "ESNext"
   },
   "include": ["src/**/*"],
   "exclude": ["server", "index.js", "node_modules"]
