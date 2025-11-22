@@ -1,1 +1,7 @@
+# Node modules
 node_modules/
+
+# TypeScript output maps (Dw, this is for Divy)
+dist/**/*.map
+dist/**/*.d.ts
+dist/**/*.d.ts.map
