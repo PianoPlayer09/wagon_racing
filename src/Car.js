@@ -1,10 +1,12 @@
 /**This is Code for "Italian Car" object and its properties */
 //Might have to add more properties later on like drift, and direction later on(can def as a normal vector based on user input )
 // Preset configurations for different kart types. Taken from form submission before joining game.(Can move to seperate file for cleaner code)
+
+//Const acceperation. Percent of 
 const KART_PRESETS = {
-  light:  { handling: 0.9, acceleration: 0.18, maxSpeed: 4.4 },
-  medium: { handling: 0.7, acceleration: 0.15, maxSpeed: 5.0 },
-  heavy:  { handling: 0.5, acceleration: 0.12, maxSpeed: 5.6 }
+  light:  { handling: 0.9, acceleration: 30, maxSpeed: 150 },
+  medium: { handling: 0.7, acceleration: 25, maxSpeed: 160},
+  heavy:  { handling: 0.5, acceleration: 23, maxSpeed: 190 }
 };
 
 
@@ -59,15 +61,23 @@ export default class ItalianCar {
     get position() {
         return { x: this.#x, y: this.#y };
     }   
-    setPosition(x, y) {  //We can seperate set X, Y or input Array, one choice to make tru set/get.
-        this.#x = x;
-        this.#y = y;
+    set x(posX) {
+        this.#x = posX;
+    }
+    set y(posY) {
+        this.#y = posY;
     }
     get coins(){
         return this.#coins;
     }
     set coins(num){
         this.#coins = num;
+    }
+    get theta(){
+        return this.#theta;
+    }
+    set theta(angle){
+        this.#theta = angle;
     }
     
 }
