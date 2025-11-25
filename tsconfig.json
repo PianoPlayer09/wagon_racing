@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist",
+    "allowJs": true,
+    "strict": true,
+    "target": "ESNext",
+    "module": "ESNext"
+  },
+  "include": ["src/**/*"],
+  "exclude": ["server", "index.js", "node_modules"]
+}
