@@ -1,6 +1,6 @@
 export const STATELESS_BINDS = true;
-export { Mesh } from "./Mesh.js";
-export { Shader } from "./Shader.js";
-export { RenderClass } from "./RenderObject.js";
-export { RenderInstance } from "./RenderInstance.js";
-export * from "./math.js";
+export { Mesh } from "./Mesh";
+export { Shader } from "./Shader";
+export { RenderClass } from "./RenderObject";
+export { RenderInstance } from "./RenderInstance";
+export * from "./math";
