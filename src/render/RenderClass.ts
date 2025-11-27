@@ -7,7 +7,7 @@ import { STATELESS_BINDS } from "./index";
 export abstract class RenderClass<Uniform, Instance extends RenderInstance> {
   protected readonly gl: WebGL2RenderingContext;
   protected readonly mesh: Mesh;
-  protected abstract readonly shader: Shader;
+  protected readonly shader: Shader;
   private readonly vao: WebGLVertexArrayObject;
   private readonly instanceBuffer: WebGLBuffer;
   private instances: Instance[] = [];
@@ -16,6 +16,7 @@ export abstract class RenderClass<Uniform, Instance extends RenderInstance> {
     this.gl = gl;
     this.mesh = mesh;
 
+    this.shader = this.createShader();
     const vao = gl.createVertexArray();
     const instanceBuffer = gl.createBuffer();
     if (!vao || !instanceBuffer) {
@@ -24,16 +25,19 @@ export abstract class RenderClass<Uniform, Instance extends RenderInstance> {
     this.vao = vao;
     this.instanceBuffer = instanceBuffer;
 
+
     this.setupVertexArray();
   }
 
+  abstract createShader(): Shader
   abstract setupVertexAttribs(): void
   abstract setupInstanceAttribs(): void;
   abstract setUniforms(data: Uniform): void;
-  abstract instanceFloats: number
+  abstract instanceFloats(): number
   abstract pack(instance: Instance, data: Float32Array, offset: number): void
+  abstract newInstance(): Instance
 
-  addInstance(instance: Instance): Instance {
+  createInstance(instance: Instance = this.newInstance()): Instance {
     this.instances.push(instance);
     return instance
   }
@@ -47,6 +51,7 @@ export abstract class RenderClass<Uniform, Instance extends RenderInstance> {
   }
 
   draw(uniform: Uniform): void {
+    const instanceFloats = this.instanceFloats()
     const count = this.instances.length;
     if (count === 0) return;
 
@@ -55,11 +60,11 @@ export abstract class RenderClass<Uniform, Instance extends RenderInstance> {
     this.setUniforms(uniform)
 
     //todo: reuse buffers
-    const data = new Float32Array(count * this.instanceFloats);
+    const data = new Float32Array(count * instanceFloats);
     let offset = 0;
     for (const instance of this.instances) {
       this.pack(instance, data,offset)
-      offset += this.instanceFloats;
+      offset += instanceFloats;
     }
 
     gl.bindBuffer(gl.ARRAY_BUFFER, this.instanceBuffer);

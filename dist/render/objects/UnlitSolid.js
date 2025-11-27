@@ -10,7 +10,11 @@ export class UnlitSolidInstance extends RenderInstance {
     }
 }
 export class UnlitSolidClass extends RenderClass {
-    vertexSource = `#version 300 es
+    instanceFloats() {
+        return 16 + 3;
+    }
+    createShader() {
+        const vertexSource = `#version 300 es
     precision highp float;
     layout(location = 0) in vec3 aPosition;
     in mat4 aModel;
@@ -21,15 +25,18 @@ export class UnlitSolidClass extends RenderClass {
       vColor = aInstanceColor;
       gl_Position = uViewProj * aModel * vec4(aPosition, 1.0);
     }`;
-    fragmentSource = `#version 300 es
+        const fragmentSource = `#version 300 es
     precision highp float;
     in vec3 vColor;
     out vec4 fragColor;
     void main() {
       fragColor = vec4(vColor, 1.0);
     }`;
-    shader = new Shader(this.gl, this.vertexSource, this.fragmentSource);
-    instanceFloats = 16 + 3;
+        return new Shader(this.gl, vertexSource, fragmentSource);
+    }
+    newInstance() {
+        return new UnlitSolidInstance();
+    }
     setupVertexAttribs() {
         const gl = this.gl;
         const posAttrib = this.shader.getAttribLocation("aPosition");
@@ -38,16 +45,17 @@ export class UnlitSolidClass extends RenderClass {
     }
     setupInstanceAttribs() {
         const gl = this.gl;
+        const instanceFloats = this.instanceFloats();
         const modelAttrib = this.shader.getAttribLocation("aModel");
         const colorAttrib = this.shader.getAttribLocation("aInstanceColor");
         for (let i = 0; i < 4; i++) {
             const loc = modelAttrib + i;
             gl.enableVertexAttribArray(loc);
-            gl.vertexAttribPointer(loc, 4, gl.FLOAT, false, this.instanceFloats * 4, i * 16);
+            gl.vertexAttribPointer(loc, 4, gl.FLOAT, false, instanceFloats * 4, i * 16);
             gl.vertexAttribDivisor(loc, 1);
         }
         gl.enableVertexAttribArray(colorAttrib);
-        gl.vertexAttribPointer(colorAttrib, 3, gl.FLOAT, false, this.instanceFloats * 4, 16 * 4);
+        gl.vertexAttribPointer(colorAttrib, 3, gl.FLOAT, false, instanceFloats * 4, 16 * 4);
         gl.vertexAttribDivisor(colorAttrib, 1);
     }
     setUniforms(camera) {
@@ -61,9 +69,11 @@ export class UnlitSolidClass extends RenderClass {
     // packs row-major matrix into column-major buffer
     writeMatrixToInstanceBuffer(buffer, offset, matrix) {
         const elements = matrix.elements;
-        for (let column = 0; column < 4; column += 1) {
-            for (let row = 0; row < 4; row += 1) {
-                buffer[offset++] = elements[row * 4 + column];
+        let i = 0;
+        for (let column = 0; column < 4; column++) {
+            for (let row = 0; row < 4; row++) {
+                buffer[offset + i] = elements[row * 4 + column];
+                i++;
             }
         }
     }

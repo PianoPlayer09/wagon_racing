@@ -3,12 +3,14 @@ import { STATELESS_BINDS } from "./index";
 export class RenderClass {
     gl;
     mesh;
+    shader;
     vao;
     instanceBuffer;
     instances = [];
     constructor(gl, mesh) {
         this.gl = gl;
         this.mesh = mesh;
+        this.shader = this.createShader();
         const vao = gl.createVertexArray();
         const instanceBuffer = gl.createBuffer();
         if (!vao || !instanceBuffer) {
@@ -18,7 +20,7 @@ export class RenderClass {
         this.instanceBuffer = instanceBuffer;
         this.setupVertexArray();
     }
-    addInstance(instance) {
+    createInstance(instance = this.newInstance()) {
         this.instances.push(instance);
         return instance;
     }
@@ -29,6 +31,7 @@ export class RenderClass {
         this.instances = [];
     }
     draw(uniform) {
+        const instanceFloats = this.instanceFloats();
         const count = this.instances.length;
         if (count === 0)
             return;
@@ -36,11 +39,11 @@ export class RenderClass {
         this.shader.use();
         this.setUniforms(uniform);
         //todo: reuse buffers
-        const data = new Float32Array(count * this.instanceFloats);
+        const data = new Float32Array(count * instanceFloats);
         let offset = 0;
         for (const instance of this.instances) {
             this.pack(instance, data, offset);
-            offset += this.instanceFloats;
+            offset += instanceFloats;
         }
         gl.bindBuffer(gl.ARRAY_BUFFER, this.instanceBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, data, gl.DYNAMIC_DRAW);

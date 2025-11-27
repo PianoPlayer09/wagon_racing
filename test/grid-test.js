@@ -2,8 +2,7 @@ import {
   CameraOptions,
   Mat4,
   Mesh,
-  RenderClass,
-  Shader,
+  UnlitSolidClass,
   Vec3,
 } from "../src/render/index";
 
@@ -17,8 +16,6 @@ if (!gl) {
 gl.enable(gl.DEPTH_TEST);
 gl.enable(gl.CULL_FACE);
 gl.clearColor(0.05, 0.05, 0.08, 1);
-
-const shader = Shader.createDefault(gl);
 
 // prettier-ignore
 const cubePositions = new Float32Array([
@@ -43,9 +40,9 @@ const cubeIndices = new Uint32Array([
 ]);
 
 const mesh = new Mesh(gl, cubePositions, cubeIndices);
-const renderClass = new RenderClass(gl, mesh, shader);
+const renderClass = new UnlitSolidClass(gl, mesh);
 
-const GRID_SIZE = 10;
+const GRID_SIZE = 2;
 const SPACING = 2;
 const instances = [];
 const rotationTargets = [];
@@ -144,7 +141,6 @@ function updateCamera(deltaTime) {
     .rotateY(cameraPitch)
     .rotateZ(cameraYaw)
     .multiplyVec(new Vec3(1, 0, 0));
-  console.log(forward);
   const right = Vec3.normalize(Vec3.cross(forward, cameraUp));
 
   let movement = new Vec3(0, 0, 0);

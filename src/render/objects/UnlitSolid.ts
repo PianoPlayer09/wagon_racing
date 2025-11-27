@@ -16,8 +16,16 @@ export class UnlitSolidInstance extends RenderInstance {
   }
 }
 
-export class UnlitSolidClass extends RenderClass<CameraOptions, UnlitSolidInstance> {
-  vertexSource = `#version 300 es
+export class UnlitSolidClass extends RenderClass<
+  CameraOptions,
+  UnlitSolidInstance
+> {
+  instanceFloats() {
+    return 16 + 3;
+  }
+
+  createShader() {
+    const vertexSource = `#version 300 es
     precision highp float;
     layout(location = 0) in vec3 aPosition;
     in mat4 aModel;
@@ -29,7 +37,7 @@ export class UnlitSolidClass extends RenderClass<CameraOptions, UnlitSolidInstan
       gl_Position = uViewProj * aModel * vec4(aPosition, 1.0);
     }`;
 
-  fragmentSource = `#version 300 es
+    const fragmentSource = `#version 300 es
     precision highp float;
     in vec3 vColor;
     out vec4 fragColor;
@@ -37,13 +45,12 @@ export class UnlitSolidClass extends RenderClass<CameraOptions, UnlitSolidInstan
       fragColor = vec4(vColor, 1.0);
     }`;
 
-  protected shader: Shader = new Shader(
-    this.gl,
-    this.vertexSource,
-    this.fragmentSource,
-  );
+    return new Shader(this.gl, vertexSource, fragmentSource);
+  }
 
-  instanceFloats = 16 + 3;
+  newInstance(): UnlitSolidInstance {
+    return new UnlitSolidInstance();
+  }
 
   setupVertexAttribs(): void {
     const gl = this.gl;
@@ -54,6 +61,7 @@ export class UnlitSolidClass extends RenderClass<CameraOptions, UnlitSolidInstan
 
   setupInstanceAttribs(): void {
     const gl = this.gl;
+    const instanceFloats = this.instanceFloats();
     const modelAttrib = this.shader.getAttribLocation("aModel");
     const colorAttrib = this.shader.getAttribLocation("aInstanceColor");
 
@@ -65,7 +73,7 @@ export class UnlitSolidClass extends RenderClass<CameraOptions, UnlitSolidInstan
         4,
         gl.FLOAT,
         false,
-        this.instanceFloats * 4,
+        instanceFloats * 4,
         i * 16,
       );
       gl.vertexAttribDivisor(loc, 1);
@@ -77,7 +85,7 @@ export class UnlitSolidClass extends RenderClass<CameraOptions, UnlitSolidInstan
       3,
       gl.FLOAT,
       false,
-      this.instanceFloats * 4,
+      instanceFloats * 4,
       16 * 4,
     );
     gl.vertexAttribDivisor(colorAttrib, 1);
@@ -100,9 +108,11 @@ export class UnlitSolidClass extends RenderClass<CameraOptions, UnlitSolidInstan
     matrix: Mat4,
   ): void {
     const elements = matrix.elements;
-    for (let column = 0; column < 4; column += 1) {
-      for (let row = 0; row < 4; row += 1) {
-        buffer[offset++] = elements[row * 4 + column];
+    let i = 0;
+    for (let column = 0; column < 4; column++) {
+      for (let row = 0; row < 4; row++) {
+        buffer[offset + i] = elements[row * 4 + column];
+        i++;
       }
     }
   }
