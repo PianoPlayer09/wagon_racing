@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Instance Buffer Resize Test</title>
+    <style>
+      body,
+      html {
+        margin: 0;
+        height: 100%;
+        background: black;
+        color: white;
+      }
+
+      #layout {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        display: grid;
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+      }
+
+      header {
+        padding: 20px 20px;
+        display: flex;
+        align-items: center;
+      }
+
+      #controls {
+        display: flex;
+        align-items: center;
+        gap: 10%;
+      }
+
+      canvas {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="layout">
+      <header>
+        <div id="controls">
+          <label for="instance-slider">Instances</label>
+          <input
+            type="range"
+            id="instance-slider"
+            min="1"
+            max="1"
+            value="1"
+            step="1"
+          />
+          <span id="instance-value">1</span>
+        </div>
+      </header>
+      <canvas id="test-canvas"></canvas>
+    </div>
+    <script type="module" src="./instance-buffer-test.js"></script>
+  </body>
+</html>
