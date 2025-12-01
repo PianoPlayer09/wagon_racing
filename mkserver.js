@@ -18,6 +18,14 @@ const app = express();
 app.use("/static", express.static(path.join(__dirname, "public")) )
 app.use(parser.json())
 
+function updateVelocities(cli){
+    for(let p of cli){
+        
+    }
+}
+
+setTimeout(updateVelocities(clients), 100)
+
 
 app.get("/wagon_race", function(req, res){
     res.sendFile(path.join(__dirname, "index.html"))
@@ -70,7 +78,7 @@ app.get("/wagon_race/start", function(req,res){
     clients[pid] = ncr
 
 })
-app.post('/wagon_race/acc', function(req, res){
+app.post('/wagon_race/val', function(req, res){
     const packet = {
         status: 'error',
         message: 'prob an invalid ID or smth'
@@ -87,11 +95,12 @@ app.post('/wagon_race/acc', function(req, res){
         res.send(JSON.stringify(packet))
         return;
     }
-    let xa = req.body.xAcc
-    let ya = req.body.yAcc
-    clients.playerid[xacceleration]=xa
-    clients.playerid[xacceleration]=ya
-
+    clients.playerid[x]=req.body.xPos
+    clients.playerid[y]=req.body.yPos
+    clients.playerid[xvel]=req.body.xVel
+    clients.playerid[yvel]= req.body.yVel
+    clients.playerid[xacc]= req.body.xAcc
+    clients.playerid[yacc]= req.body.yAcc
 
 })
 

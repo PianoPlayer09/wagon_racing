@@ -15,7 +15,7 @@ SOIUGNSOGIN
 * * position - the players position (x,y)
 * * velocity - the players velocity (xVel,yVel)
 * * acceleration - the players acceleration (xAcc, yAcc)
-* Post /wagon_race/acc - update acceleration with json encoded data
+* Post /wagon_race/val - update acceleration, velocity, and position with json encoded data
 * * gameid - the game id of the relvant game(might remove later but makes my life easier for now)
 * * playerid - the id of he relevant player
 * * xAcc - the x acceleration of the relevant player
