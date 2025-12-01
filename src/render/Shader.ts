@@ -1,4 +1,4 @@
-import { Mat4, Vec3 } from "./math";
+import { Mat4, Vec3 } from "../math";
 
 export class Shader {
   private readonly gl: WebGL2RenderingContext;
@@ -59,8 +59,7 @@ export class Shader {
   uniformMat4(name: string, value: Mat4): void {
     const loc = this.getUniformLocation(name);
     if (loc) {
-      const columnMajor = value.transpose();
-      this.gl.uniformMatrix4fv(loc, false, columnMajor.elements);
+      this.gl.uniformMatrix4fv(loc, false, value.elements);
     }
   }
 

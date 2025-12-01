@@ -65,6 +65,12 @@ export class Vec3 {
         const rhs = Vec3.from(b);
         return lhs.x * rhs.x + lhs.y * rhs.y + lhs.z * rhs.z;
     }
+    static distance(a, b) {
+        const dx = b.x - a.x;
+        const dy = b.y - a.y;
+        const dz = b.z - a.z;
+        return Math.hypot(dx, dy, dz);
+    }
     scale(s) {
         return new Vec3(this.x * s, this.y * s, this.z * s);
     }
@@ -88,6 +94,9 @@ export class CameraOptions {
     }
 }
 export class Mat4 {
+    static index(row, col) {
+        return col * 4 + row;
+    }
     elements;
     constructor(values) {
         if (values) {
@@ -96,10 +105,9 @@ export class Mat4 {
         }
         else {
             const elements = new Float32Array(16);
-            elements[0] = 1;
-            elements[5] = 1;
-            elements[10] = 1;
-            elements[15] = 1;
+            for (let i = 0; i < 4; i++) {
+                elements[Mat4.index(i, i)] = 1;
+            }
             this.elements = elements;
         }
     }
@@ -108,7 +116,7 @@ export class Mat4 {
         const res = new Mat4();
         for (let r = 0; r < 3; r++) {
             for (let c = 0; c < 3; c++) {
-                res.elements[r * 4 + c] = values[r * 3 + c];
+                res.elements[Mat4.index(r, c)] = values[r * 3 + c];
             }
         }
         return res;
@@ -126,28 +134,34 @@ export class Mat4 {
             for (let r = 0; r < 4; r++) {
                 let sum = 0;
                 for (let i = 0; i < 4; i++) {
-                    sum += this.elements[r * 4 + i] * rhs.elements[c + i * 4];
+                    sum +=
+                        this.elements[Mat4.index(r, i)] * rhs.elements[Mat4.index(i, c)];
                 }
-                out.elements[r * 4 + c] = sum;
+                out.elements[Mat4.index(r, c)] = sum;
             }
         }
         return out;
     }
     multiplyVec(rhs) {
         const out = new Vec3();
+        let w = 0;
         for (let r = 0; r < 4; r++) {
-            let sum = this.elements[r * 4 + 3];
+            let sum = this.elements[Mat4.index(r, 3)];
             for (let i = 0; i < 3; i++) {
-                sum += this.elements[r * 4 + i] * rhs.elements[i];
+                sum += this.elements[Mat4.index(r, i)] * rhs.elements[i];
             }
-            if (r == 3) {
-                out.elements[0] /= sum;
-                out.elements[1] /= sum;
-                out.elements[2] /= sum;
-            }
-            else {
+            if (r < 3) {
                 out.elements[r] = sum;
             }
+            else {
+                w = sum;
+            }
+        }
+        if (w !== 0 && w !== 1) {
+            const invW = 1 / w;
+            out.elements[0] *= invW;
+            out.elements[1] *= invW;
+            out.elements[2] *= invW;
         }
         return out;
     }
@@ -161,7 +175,7 @@ export class Mat4 {
             0, f, 0, 0,
             0, 0, (near + far) * rangeInv, near * far * rangeInv * 2,
             0, 0, -1, 0,
-        ]);
+        ]).transpose();
     }
     // https://learnopengl.com/Getting-started/Camera
     // from https://github.com/g-truc/glm/blob/a583c59e1616a628b18195869767ea4d6faca5f4/glm/ext/matrix_transform.inl#L153.
@@ -176,7 +190,7 @@ export class Mat4 {
             u.x, u.y, u.z, -Vec3.dot(u, eye),
             -f.x, -f.y, -f.z, Vec3.dot(f, eye),
             0, 0, 0, 1,
-        ]);
+        ]).transpose();
     }
     transform(by) {
         return by.multiply(this);
@@ -188,7 +202,7 @@ export class Mat4 {
             0, 1, 0, value.y,
             0, 0, 1, value.z,
             0, 0, 0, 1
-        ]));
+        ]).transpose());
     }
     scale(value) {
         const vector = typeof value === "number"
@@ -200,7 +214,7 @@ export class Mat4 {
             0, vector.y, 0, 0,
             0, 0, vector.z, 0,
             0, 0, 0, 1
-        ]));
+        ]).transpose());
     }
     rotate(rotation) {
         return this.rotateX(rotation.x).rotateY(rotation.y).rotateZ(rotation.z);
@@ -244,7 +258,7 @@ export class Mat4 {
         const out = new Mat4();
         for (let r = 0; r < 4; r++) {
             for (let c = 0; c < 4; c++) {
-                out.elements[c * 4 + r] = this.elements[r * 4 + c];
+                out.elements[Mat4.index(r, c)] = this.elements[Mat4.index(c, r)];
             }
         }
         return out;
