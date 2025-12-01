@@ -1,4 +1,4 @@
-import { Mat4, Vec3 } from "../math";
+import { Mat4, Vec3 } from "../../math";
 import { RenderInstance } from "../RenderInstance";
 import { RenderClass } from "../RenderClass";
 import { Shader } from "../Shader";
@@ -63,18 +63,7 @@ export class UnlitSolidClass extends RenderClass {
         this.shader.uniformMat4("uViewProj", viewProj);
     }
     pack(instance, data, offset) {
-        this.writeMatrixToInstanceBuffer(data, offset, instance.modelMatrix);
+        data.set(instance.modelMatrix.elements, offset);
         data.set(instance.color.elements, offset + 16);
-    }
-    // packs row-major matrix into column-major buffer
-    writeMatrixToInstanceBuffer(buffer, offset, matrix) {
-        const elements = matrix.elements;
-        let i = 0;
-        for (let column = 0; column < 4; column++) {
-            for (let row = 0; row < 4; row++) {
-                buffer[offset + i] = elements[row * 4 + column];
-                i++;
-            }
-        }
     }
 }

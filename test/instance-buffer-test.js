@@ -1,10 +1,5 @@
-import {
-  CameraOptions,
-  Mat4,
-  Mesh,
-  UnlitSolidClass,
-  Vec3,
-} from "../src/render/index";
+import { Mesh, UnlitSolidClass } from "../src/render/index";
+import { Mat4, Vec3, CameraOptions } from "../src/math";
 
 const canvas = document.getElementById("test-canvas");
 const slider = document.getElementById("instance-slider");

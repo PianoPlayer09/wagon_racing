@@ -1,7 +1,7 @@
 import { Mesh } from "./Mesh";
 import { Shader } from "./Shader";
 import { RenderInstance } from "./RenderInstance";
-import { Mat4 } from "./math";
+import { Mat4 } from "../math";
 import { STATELESS_BINDS } from "./index";
 
 export abstract class RenderClass<Uniform, Instance extends RenderInstance> {
