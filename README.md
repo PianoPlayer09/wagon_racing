@@ -20,3 +20,7 @@ SOIUGNSOGIN
 * * playerid - the id of he relevant player
 * * xAcc - the x acceleration of the relevant player
 * * yAcc - the y acceleration of the relevent player
+* * xVel - the x velocity of the relevant player
+* * yVel - the y velocity of the relevant player
+* * xPos - the x position of the relevant player
+* * yPos - the y position of the relevant player

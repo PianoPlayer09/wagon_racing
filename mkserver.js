@@ -18,13 +18,6 @@ const app = express();
 app.use("/static", express.static(path.join(__dirname, "public")) )
 app.use(parser.json())
 
-function updateVelocities(cli){
-    for(let p of cli){
-        
-    }
-}
-
-setTimeout(updateVelocities(clients), 100)
 
 
 app.get("/wagon_race", function(req, res){
@@ -101,6 +94,7 @@ app.post('/wagon_race/val', function(req, res){
     clients.playerid[yvel]= req.body.yVel
     clients.playerid[xacc]= req.body.xAcc
     clients.playerid[yacc]= req.body.yAcc
+    sendEvent(gameid, playerid)
 
 })
 
