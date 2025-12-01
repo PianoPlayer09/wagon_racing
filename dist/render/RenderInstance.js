@@ -1,4 +1,4 @@
-import { Mat4, Vec3 } from "./math";
+import { Mat4, Vec3 } from "../math";
 export class RenderInstance {
     #translation;
     #rotation;

@@ -1,10 +1,6 @@
-import {
-  CameraOptions,
-  Mat4,
-  Mesh,
-  UnlitSolidClass,
-  Vec3,
-} from "../src/render/index";
+import { Mat4, Mesh, UnlitSolidClass, Vec3 } from "../src/render/index";
+
+import { CameraOptions } from "../src/math";
 
 const canvas = document.getElementById("grid-test-canvas");
 

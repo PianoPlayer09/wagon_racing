@@ -1,4 +1,4 @@
-import { Mat4, Vec3, Vec3Like } from "./math";
+import { Mat4, Vec3, Vec3Like } from "../math";
 
 export class RenderInstance {
   #translation: Vec3;

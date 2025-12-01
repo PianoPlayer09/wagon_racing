@@ -4,5 +4,4 @@ export { Mesh } from "./Mesh";
 export { Shader } from "./Shader";
 export { RenderClass } from "./RenderClass";
 export { RenderInstance } from "./RenderInstance";
-export * from "./math";
 export * from "./objects/index";

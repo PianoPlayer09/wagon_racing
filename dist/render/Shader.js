@@ -39,8 +39,7 @@ export class Shader {
     uniformMat4(name, value) {
         const loc = this.getUniformLocation(name);
         if (loc) {
-            const columnMajor = value.transpose();
-            this.gl.uniformMatrix4fv(loc, false, columnMajor.elements);
+            this.gl.uniformMatrix4fv(loc, false, value.elements);
         }
     }
     uniformVec3(name, value) {
