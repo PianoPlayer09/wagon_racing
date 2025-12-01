@@ -11,6 +11,7 @@ app.get('/', (req, res) => {
 
 app.use('/test', express.static('test'));
 app.use('/dist', express.static('dist'));
+app.use('/src', express.static(path.join(__dirname, 'dist'), { extensions: ['js'] }));
 app.use('/dist/render', express.static('dist/render'));
 
 app.listen(port, () => {

@@ -1,16 +1,14 @@
-import { Mat4, Vec3 } from "./math.js";
+import { Mat4, Vec3 } from "./math";
 export class RenderInstance {
     #translation;
     #rotation;
     #scale;
-    #color;
     #modelMatrix;
     changed = true;
-    constructor(translation = [0, 0, 0], rotation = [0, 0, 0], scale = [1, 1, 1], color = [1, 1, 1]) {
+    constructor(translation = [0, 0, 0], rotation = [0, 0, 0], scale = [1, 1, 1]) {
         this.#translation = Vec3.from(translation);
         this.#rotation = Vec3.from(rotation);
         this.#scale = Vec3.from(scale);
-        this.#color = Vec3.from(color);
         this.#modelMatrix = new Mat4();
     }
     set translation(translation) {
@@ -33,12 +31,6 @@ export class RenderInstance {
     }
     get scale() {
         return this.#scale;
-    }
-    set color(color) {
-        this.#color.copyFrom(Vec3.from(color));
-    }
-    get color() {
-        return this.#color;
     }
     get modelMatrix() {
         if (this.changed) {

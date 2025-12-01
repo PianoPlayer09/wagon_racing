@@ -5,8 +5,9 @@
     "allowJs": true,
     "strict": true,
     "target": "ESNext",
-    "module": "ESNext"
+    "module": "ESNext",
+    "moduleResolution": "bundler"
   },
-  "include": ["src/**/*"],
+  "include": ["src"],
   "exclude": ["server", "index.js", "node_modules"]
 }

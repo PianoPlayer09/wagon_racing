@@ -1,10 +1,9 @@
-import { Mat4, Vec3, Vec3Like } from "./math.js";
+import { Mat4, Vec3, Vec3Like } from "./math";
 
 export class RenderInstance {
   #translation: Vec3;
   #rotation: Vec3;
   #scale: Vec3;
-  #color: Vec3;
 
   #modelMatrix: Mat4;
   private changed = true;
@@ -13,12 +12,10 @@ export class RenderInstance {
     translation: Vec3Like = [0, 0, 0],
     rotation: Vec3Like = [0, 0, 0],
     scale: Vec3Like = [1, 1, 1],
-    color: Vec3Like = [1, 1, 1],
   ) {
     this.#translation = Vec3.from(translation);
     this.#rotation = Vec3.from(rotation);
     this.#scale = Vec3.from(scale);
-    this.#color = Vec3.from(color);
     this.#modelMatrix = new Mat4();
   }
 
@@ -47,14 +44,6 @@ export class RenderInstance {
 
   get scale(): Vec3 {
     return this.#scale;
-  }
-
-  set color(color: Vec3Like) {
-    this.#color.copyFrom(Vec3.from(color));
-  }
-
-  get color(): Vec3 {
-    return this.#color;
   }
 
   get modelMatrix(): Mat4 {

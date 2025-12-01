@@ -1,4 +1,4 @@
-import { Mat4, Vec3 } from "./math.js";
+import { Mat4, Vec3 } from "./math";
 
 export class Shader {
   private readonly gl: WebGL2RenderingContext;
@@ -38,29 +38,6 @@ export class Shader {
     this.program = program;
   }
 
-  static createDefault(gl: WebGL2RenderingContext): Shader {
-    const vertexSource = `#version 300 es
-    precision highp float;
-    layout(location = 0) in vec3 aPosition;
-    in mat4 aModel;
-    in vec3 aInstanceColor;
-    uniform mat4 uViewProj;
-    out vec3 vColor;
-    void main() {
-      vColor = aInstanceColor;
-      gl_Position = uViewProj * aModel * vec4(aPosition, 1.0);
-    }`;
-
-    const fragmentSource = `#version 300 es
-    precision highp float;
-    in vec3 vColor;
-    out vec4 fragColor;
-    void main() {
-      fragColor = vec4(vColor, 1.0);
-    }`;
-
-    return new Shader(gl, vertexSource, fragmentSource);
-  }
 
   use(): void {
     this.gl.useProgram(this.program);

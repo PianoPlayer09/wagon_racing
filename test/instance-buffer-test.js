@@ -6,7 +6,9 @@ import {
   Vec3,
 } from "../src/render/index";
 
-const canvas = document.getElementById("grid-test-canvas");
+const canvas = document.getElementById("test-canvas");
+const slider = document.getElementById("instance-slider");
+const sliderValue = document.getElementById("instance-value");
 
 const gl = canvas.getContext("webgl2", { antialias: true });
 if (!gl) {
@@ -42,17 +44,16 @@ const cubeIndices = new Uint32Array([
 const mesh = new Mesh(gl, cubePositions, cubeIndices);
 const renderClass = new UnlitSolidClass(gl, mesh);
 
-const GRID_SIZE = 2;
+const GRID_SIZE = 5;
 const SPACING = 2;
 const instances = [];
 const rotationTargets = [];
 
-//const centerOffset = (GRID_SIZE - 1) / 2;
 const centerOffset = 0;
 for (let x = 0; x < GRID_SIZE; x += 1) {
   for (let y = 0; y < GRID_SIZE; y += 1) {
     for (let z = 0; z < GRID_SIZE; z += 1) {
-      const instance = renderClass.createInstance();
+      const instance = renderClass.newInstance();
       instance.translation = new Vec3(
         (x - centerOffset) * SPACING,
         (y - centerOffset) * SPACING,
@@ -85,6 +86,22 @@ for (let x = 0; x < GRID_SIZE; x += 1) {
   }
 }
 
+const TOTAL_INSTANCES = instances.length;
+slider.max = String(TOTAL_INSTANCES);
+slider.value = "1";
+let activeInstanceCount = 0;
+
+function applyInstanceCount(value) {
+  activeInstanceCount = value;
+  sliderValue.textContent = String(value);
+  renderClass.clearInstances();
+  for (let i = 0; i < value; i += 1) {
+    renderClass.createInstance(instances[i]);
+  }
+}
+
+applyInstanceCount(1);
+
 const cameraPosition = new Vec3(0, 0);
 const cameraTarget = new Vec3(0, 0, 0);
 const cameraUp = new Vec3(0, 0, 1);
@@ -108,6 +125,12 @@ window.addEventListener("keydown", (event) =>
 window.addEventListener("keyup", (event) =>
   keys.delete(event.key.toLowerCase()),
 );
+
+slider.addEventListener("input", (event) => {
+  const target = event.target;
+  if (!(target instanceof HTMLInputElement)) return;
+  applyInstanceCount(Number(target.value));
+});
 
 canvas.addEventListener("click", () => {
   canvas.requestPointerLock();
@@ -188,6 +211,32 @@ function updateInstances(time) {
     );
   });
 }
+
+const boundBuffers = new Map();
+const originalBindBuffer = gl.bindBuffer.bind(gl);
+gl.bindBuffer = (target, buffer) => {
+  originalBindBuffer(target, buffer);
+  boundBuffers.set(target, buffer ?? null);
+};
+
+const instanceBuffer = renderClass["instanceBuffer"];
+let lastInstanceBufferSize = 0;
+const originalBufferData = gl.bufferData.bind(gl);
+gl.bufferData = (target, dataOrSize, usage) => {
+  originalBufferData(target, dataOrSize, usage);
+  if (
+    target === gl.ARRAY_BUFFER &&
+    boundBuffers.get(gl.ARRAY_BUFFER) === instanceBuffer
+  ) {
+    const byteLength =
+      typeof dataOrSize === "number" ? dataOrSize : dataOrSize.byteLength;
+    if (byteLength !== lastInstanceBufferSize) {
+      const action = byteLength > lastInstanceBufferSize ? "grew" : "shrunk";
+      console.log(`[InstanceBuffer] ${action} to ${byteLength} bytes`);
+      lastInstanceBufferSize = byteLength;
+    }
+  }
+};
 
 function animate(time) {
   const deltaTime = (time - lastTime) / 1000;

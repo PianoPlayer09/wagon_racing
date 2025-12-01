@@ -1,4 +1,4 @@
-import { STATELESS_BINDS } from "./index.js";
+import { STATELESS_BINDS } from "./index";
 export class Mesh {
     gl;
     vertexBuffer;
@@ -32,20 +32,20 @@ export class Mesh {
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
         return buffer;
     }
-    configureVertexAttributes(positionAttribLocation) {
+    bind() {
         const gl = this.gl;
         gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
-        gl.enableVertexAttribArray(positionAttribLocation);
-        gl.vertexAttribPointer(positionAttribLocation, 3, gl.FLOAT, false, 3 * 4, 0);
-        if (STATELESS_BINDS)
-            gl.bindBuffer(gl.ARRAY_BUFFER, null);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+    }
+    static unbind(gl) {
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
     }
     drawInstanced(instanceCount) {
         if (instanceCount == 0)
             return;
         const gl = this.gl;
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+        this.bind();
         gl.drawElementsInstanced(gl.TRIANGLES, this.indexCount, gl.UNSIGNED_INT, 0, instanceCount);
         if (STATELESS_BINDS) {
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
