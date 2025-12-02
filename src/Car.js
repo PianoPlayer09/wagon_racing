@@ -20,6 +20,8 @@ export default class ItalianCar {
         #currentSpeed;
         #x;
         #y;
+        width = 30;
+        length = 120;
         #coins; //def the speedboost
     constructor(color, type) {
         this.#color = color;
