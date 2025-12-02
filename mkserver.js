@@ -9,8 +9,10 @@ const carphys=require(path.join(__dirname, 'src', 'CarPhysics.ts'))
 //should prob implement a class for tracks
 const track=require(path.join(__dirname, 'src', 'track.js'))
 
-
+//object of all games in the form: (gameid):(game object)
 const games = {}
+
+//object of all clients in the form: (playerid):(player object)
 const clients = {}
 
 const PORT = 4242
@@ -23,6 +25,12 @@ app.use(parser.json())
 app.get("/wagon_race", function(req, res){
     res.sendFile(path.join(__dirname, "index.html"))
 })
+/**
+ * joins a game with the provided gameid and creates a new one if it doen't exist
+ * game objects have a track object, a list of player ids, and the number of players
+ * also creates a new player object
+ * player objects have their playerids, gameids, player number, and their car object
+ */
 app.get("/wagon_race/start", function(req,res){
     let gid = req.query.gameid
     let pid = req.query.playerid
@@ -30,10 +38,10 @@ app.get("/wagon_race/start", function(req,res){
     let clr = req.query.color
     let gm = {
         track: null,
-        Players: null,
+        Players: [],
         numPlayers: null,
     }
-    let ncr = new ItalianCar(clr,krt)
+    let ncr = new cars(clr,krt)
     let pl = {
         playerid: pid,
         gameid: gid,
@@ -72,6 +80,7 @@ app.get("/wagon_race/start", function(req,res){
     clients[pid] = ncr
 
 })
+//sends player info as detailed in the api
 app.get('/wagon_race/player', function(req, res){
     const pid = req.query.playerid
     const packet={
@@ -82,6 +91,8 @@ app.get('/wagon_race/player', function(req, res){
     res.send(JSON.stringify(packet))
 
 })
+
+//sends game info as detailed in the api
 app.get('/wagon_race/game', function(req,res){
     const gid = req.query.gameid
     const gm = games[gid]
@@ -103,6 +114,8 @@ app.get('/wagon_race/game', function(req,res){
     
 
 })
+
+//updates pos,vel, and acc of a valid player in a valid game
 app.post('/wagon_race/val', function(req, res){
     const packet = {
         status: 'error',
@@ -120,16 +133,17 @@ app.post('/wagon_race/val', function(req, res){
         res.send(JSON.stringify(packet))
         return;
     }
-    clients.playerid[x]=req.body.xPos
-    clients.playerid[y]=req.body.yPos
-    clients.playerid[xvel]=req.body.xVel
-    clients.playerid[yvel]= req.body.yVel
-    clients.playerid[xacc]= req.body.xAcc
-    clients.playerid[yacc]= req.body.yAcc
+    clients.playerid.car.position[x]=req.body.xPos
+    clients.playerid.car.position[y]=req.body.yPos
+    clients.playerid.car.velocity[xvel]=req.body.xVel
+    clients.playerid.car.velocity[yvel]= req.body.yVel
+    clients.playerid.car.acceleration[xacc]= req.body.xAcc
+    clients.playerid.car.acceleration[yacc]= req.body.yAcc
     sendEvent(gameid, playerid)
 
 })
 
+//sends an event which just says there was an update
 function sendEvent(gameid, playerId){
     let packet = JSON.stringify({
         gameid,
@@ -141,6 +155,7 @@ function sendEvent(gameid, playerId){
     }
 }
 
+//sets up event stream, idk how though
 app.get("/wagon_race/events", function(req, res){
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Content-Type', 'text/event-stream');
