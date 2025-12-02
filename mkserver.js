@@ -86,7 +86,6 @@ app.get('/wagon_race/game', function(req,res){
     const gid = req.query.gameid
     const gm = games[gid]
     let packet = {
-        gameid:`${gid}`,
         obstacles:`${gm.track[obstacles]}`,
         players:``,
         positions:``,
