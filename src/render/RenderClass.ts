@@ -16,6 +16,8 @@ export abstract class RenderClass<Uniform, Instance extends RenderInstance> {
   constructor(gl: WebGL2RenderingContext, mesh: Mesh) {
     this.gl = gl;
     this.mesh = mesh;
+    gl.cullFace(gl.FRONT_AND_BACK);
+    gl.disable(gl.CULL_FACE);
 
     this.shader = this.createShader();
     const vao = gl.createVertexArray();

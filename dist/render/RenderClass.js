@@ -11,6 +11,8 @@ export class RenderClass {
     constructor(gl, mesh) {
         this.gl = gl;
         this.mesh = mesh;
+        gl.cullFace(gl.FRONT_AND_BACK);
+        gl.disable(gl.CULL_FACE);
         this.shader = this.createShader();
         const vao = gl.createVertexArray();
         const instanceBuffer = gl.createBuffer();
