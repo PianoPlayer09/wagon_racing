@@ -71,6 +71,14 @@ app.get("/wagon_race/start", function(req,res){
     clients[pid] = ncr
 
 })
+app.get('/wagon_race/player', function(req, res){
+    const pid = req.query.playerid
+    const packet={
+        position: `(${clients.pid[x]}, ${clients.pid[y]})`,
+        velocity: `(${clients.pid[xvel]}, ${clients.pid[yvel]})`,
+        acceleration: `(${clients.pid[xacc]}, ${clients.pid[yacc]})`,
+    }
+})
 app.post('/wagon_race/val', function(req, res){
     const packet = {
         status: 'error',
