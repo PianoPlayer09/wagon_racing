@@ -20,6 +20,10 @@ export default class ItalianCar {
         #currentSpeed;
         #x;
         #y;
+        #xvel;//xvel,yvel,xacc,and yacc are for the purpose of data storage
+        #yvel;
+        #xacc;
+        #yacc;
         #coins; //def the speedboost
     constructor(color, type) {
         this.#color = color;
@@ -34,6 +38,10 @@ export default class ItalianCar {
         this.#currentSpeed = 0;
         this.#x = 0; // Initial X position  --- NOT SURE WHERE WE NEED TO SET THIS BUT YEA
         this.#y = 0; // Initial Y position  --- NOT SURE WHERE WE NEED TO SET THIS BUT YEA
+        this.#xvel = 0
+        this.#yvel = 0
+        this.#xacc = 0
+        this.#yacc = 0
         this.#coins = 0;
         this.#theta = 0; // initial direction angle ---MIGHT have to change to 90. Depends on how we implement certain things
     }
@@ -60,12 +68,34 @@ export default class ItalianCar {
     }
     get position() {
         return { x: this.#x, y: this.#y };
-    }   
+    }
+    get velocity(){
+        return{xvel:this.#xvel, yvel:this.#yvel}
+    }
+    get acceleration(){
+        return{xacc:this.#xacc, yacc:this.#yacc}
+    }
     set x(posX) {
         this.#x = posX;
     }
     set y(posY) {
         this.#y = posY;
+    }
+    set xvel(xv){
+        this.#xvel = xv
+        this.#currentSpeed=Math.SQRT((this.#xvel**2)+(this.#yvel)**2)
+        this.#theta=Math.atan(this.#yvel/this.#xvel)
+    }
+    set yvel(yv){
+        this.#yvel = yv
+        this.#currentSpeed=Math.SQRT((this.#xvel**2)+(this.#yvel)**2)
+        this.#theta=Math.atan(this.#yvel/this.#xvel)
+    }
+    set xacc(xa){
+        this.#xacc=xa
+    }
+    set yacc(ya){
+        this.#yacc=ya
     }
     get coins(){
         return this.#coins;
