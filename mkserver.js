@@ -30,18 +30,15 @@ app.get("/wagon_race/start", function(req,res){
     let clr = req.query.color
     let gm = {
         track: null,
-        P1: null,
-        P2: null,
-        P3: null,
-        P4: null
+        Players: null,
+        numPlayers: null,
     }
     let ncr = new ItalianCar(clr,krt)
     let pl = {
+        playerid: pid,
         gameid: gid,
         playernumber: null,
         car: ncr,
-        xacceleration:0,
-        yacceleration:0
     }
     if(!(gid in games)){
         gm[track] = new track()
@@ -49,20 +46,24 @@ app.get("/wagon_race/start", function(req,res){
         
     }
     if(games.gid[P1]==null){
-        games.gid[P1] = pid
+        games.gid.Players.push(pid)
         pl[playernumber]=1
+        games.gid[numPlayers]=1
     }
     else if(games.gid[P2]==null){
-        games.gid[P2] = pid
+        games.gid.Players.push(pid)
         pl[playernumber]=2
+        games.gid[numPlayers]=2
     }
     else if(games.gid[P3]==null){
-        games.gid[P3] = pid
+        games.gid.Players.push(pid)
         pl[playernumber]=3
+        games.gid[numPlayers]=3
     }
     else if(games.gid[P4]==null){
-        games.gid[P4] = pid
+        games.gid.Players.push(pid)
         pl[playernumber]=4
+        games.gid[numPlayers]=4
     }
     else{
         res.send("game is full")
@@ -74,10 +75,34 @@ app.get("/wagon_race/start", function(req,res){
 app.get('/wagon_race/player', function(req, res){
     const pid = req.query.playerid
     const packet={
-        position: `(${clients.pid[x]}, ${clients.pid[y]})`,
-        velocity: `(${clients.pid[xvel]}, ${clients.pid[yvel]})`,
-        acceleration: `(${clients.pid[xacc]}, ${clients.pid[yacc]})`,
+        position: `(${clients.pid.car.position[x]}, ${clients.pid.car.position[y]})`,
+        velocity: `(${clients.pid.car.velocity[xvel]}, ${clients.pid.car.velocity[yvel]})`,
+        acceleration: `(${clients.pid.car.acceleration[xacc]}, ${clients.pid.car.acceleration[yacc]})`,
     }
+    res.send(JSON.stringify(packet))
+
+})
+app.get('/wagon_race/game', function(req,res){
+    const gid = req.query.gameid
+    const gm = games[gid]
+    let packet = {
+        gameid:`${gid}`,
+        obstacles:`${gm.track[obstacles]}`,
+        players:``,
+        positions:``,
+    }
+    let players=gm.Players
+    let positions=[]
+    for(let p of players){
+        let pos= `(${p})=(${clients.p.car.position[x]}, ${clients.p.car.position[y]})`
+        positions.push[pos]
+    }
+    packet[players]=players
+    packet[positions]=positions
+    res.send(JSON.stringify(packet))
+
+    
+
 })
 app.post('/wagon_race/val', function(req, res){
     const packet = {
