@@ -4,7 +4,7 @@ import ItalianCar from "./Car"
 // this function will be used to detect collision between two items and also tell whether movement is valid
 //class is in place of namespace
 //WE have Cars as same dimensions
-export class CollisionDetection {
+export class CollisionSystem {
     //simplest
     static isCollidingCarCar(car1: ItalianCar, car2: ItalianCar): boolean {
         let dx = car1.x - (car2.x / 2);
