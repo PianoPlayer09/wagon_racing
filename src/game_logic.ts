@@ -11,7 +11,6 @@ import { generateProceduralRoad } from "./road/index";
 
 export default class GameLogic {
   #car: ItalianCar;
-  #dt: number = 0;
   #carInstance: any;
   #roadInstance: any;
 
@@ -88,13 +87,13 @@ export default class GameLogic {
   }
 
   loop(dt: number, time: number) {
-    const change = (time - this.#dt) / 1000;
-    this.#dt = time;
+
     //Applying Car Physics methods.
-    CarPhysics.applyAcceleration(this.#car, inputStates, change);
-    CarPhysics.applySteering(this.#car, inputStates, change);
-    CarPhysics.applyFriction(this.#car, change);
-    //CarPhysics.updatePosition(this.#car, change);
+
+    CarPhysics.applyAcceleration(this.#car, inputStates, dt);
+    CarPhysics.applySteering(this.#car, inputStates, dt);
+    CarPhysics.applyFriction(this.#car, dt);
+    CarPhysics.updatePosition(this.#car, CarPhysics.NextPosition(this.#car,dt));
 
     // Update car render instance position
     this.#carInstance.translation = new Vec3(

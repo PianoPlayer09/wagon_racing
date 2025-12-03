@@ -48,6 +48,12 @@ export default class ItalianCar {
         this.#theta = 0; // initial direction angle ---MIGHT have to change to 90. Depends on how we implement certain things
         //theta is in RADIANS!
     }
+    get x() {
+        return this.#x;
+    }
+    get y() {
+        return this.#y;
+    }
     get color() {
         return this.#color;
     }
@@ -75,7 +81,7 @@ export default class ItalianCar {
     get velocity(){
         return{xvel:this.#xvel, yvel:this.#yvel}
     }
-    get acceleration(){
+    get accelerationV(){
         return{xacc:this.#xacc, yacc:this.#yacc}
     }
     set x(posX) {
@@ -86,12 +92,12 @@ export default class ItalianCar {
     }
     set xvel(xv){
         this.#xvel = xv
-        this.#currentSpeed=Math.SQRT((this.#xvel**2)+(this.#yvel)**2)
+        //this.#currentSpeed=Math.SQRT((this.#xvel**2)+(this.#yvel)**2)
         this.#theta=Math.atan(this.#yvel/this.#xvel)
     }
     set yvel(yv){
         this.#yvel = yv
-        this.#currentSpeed=Math.SQRT((this.#xvel**2)+(this.#yvel)**2)
+        //this.#currentSpeed=Math.SQRT((this.#xvel**2)+(this.#yvel)**2)
         this.#theta=Math.atan(this.#yvel/this.#xvel)
     }
     set xacc(xa){

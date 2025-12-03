@@ -28,7 +28,7 @@ export default class CarPhysics {
         
         if (input.up) {
             let d =car.acceleration * dt;
-            car.currentSpeed += Math.min(d, car.maxSpeed - car.currentSpeed);
+            car.currentSpeed += d
         }
         if (input.down) {
             let d =car.acceleration * dt;
@@ -40,20 +40,17 @@ export default class CarPhysics {
     //Turing/Steering
     static applySteering(car: ItalianCar, input: InputStates, dt: number) {
         if (input.left) {
-            car.theta -= car.handling  * dt; 
+            car.theta += car.handling  * dt; 
         }
         if (input.right) {
-            car.theta += car.handling  * dt;
+            car.theta -= car.handling  * dt;
         }
     }
 
       //Friction/Drag ( @Thomas)
     static applyFriction(car: ItalianCar, dt: number) {
         const frictionCoefficient = 0.1; // Adjust this value to change the friction effect
-        car.currentSpeed*=(1-frictionCoefficient)*dt;
-        if (Math.abs(car.currentSpeed) < 0.01) {
-            car.currentSpeed = 0; 
-        }
+        car.currentSpeed -= Math.pow(car.currentSpeed,1.5)*frictionCoefficient*dt;
     }
     // Collision Detection/Response 
     //https://developer.mozilla.org/en-US/docs/Games/Techniques/2D_collision_detection
