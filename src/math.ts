@@ -92,6 +92,10 @@ export class Vec3 {
     return Math.hypot(dx, dy, dz);
   }
 
+  magnitude(): number {
+    return Math.hypot(this.x,this.y,this.z)
+  }
+
   scale(s: number): Vec3 {
     return new Vec3(this.x * s, this.y * s, this.z * s);
   }

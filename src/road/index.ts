@@ -26,6 +26,8 @@ export interface ProceduralRoad {
   positions: Float32Array;
   indices: Uint32Array;
   centerline: Vec3[];
+  control_points: Vec3[];
+  width: number
 }
 
 export function generateRoad(
@@ -42,7 +44,9 @@ export function generateRoad(
   return {
     positions,
     indices,
-    centerline
+    centerline,
+    control_points: centerline,
+    width
   };
 }
 
@@ -66,7 +70,16 @@ export function generateProceduralRoad(
     positions,
     indices,
     centerline,
+    control_points: controlPoints,
+    width: opts.width
   };
+}
+
+export function collideRoad(
+  road: ProceduralRoad,
+  p: Vec3
+): boolean {
+  return !! road.centerline.find(x => Vec3.distance(x,p) < road.width)
 }
 
 function createControlPoints(

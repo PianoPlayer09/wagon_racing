@@ -3,16 +3,19 @@ import inputStates from "./input";
 import CarPhysics from "./CarPhysics";
 import { Renderer } from "./render/Renderer.js";
 import { Mesh } from "./render/Mesh.js";
-import { UnlitSolidClass } from "./render/objects/UnlitSolid";
+import { UnlitSolidClass, UnlitSolidInstance } from "./render/objects/UnlitSolid";
 import { Vec3 } from "./math";
-import { generateProceduralRoad } from "./road/index";
+import { collideRoad, generateProceduralRoad, ProceduralRoad } from "./road/index";
+import { RenderInstance } from "./render/RenderInstance.js";
 
 //some form or something to create cars based on user input before joining game
 
 export default class GameLogic {
   #car: ItalianCar;
-  #carInstance: any;
-  #roadInstance: any;
+  #carInstance: UnlitSolidInstance;
+  #roadInstance: UnlitSolidInstance;
+
+  #road: ProceduralRoad;
 
   #renderer: Renderer;
   constructor(canvas: HTMLCanvasElement) {
@@ -25,7 +28,7 @@ export default class GameLogic {
     });
 
     // Generate procedural road
-    const road = generateProceduralRoad({
+    this.#road = generateProceduralRoad({
       controlPointCount: 10,
       baseRadius: 50,
       radiusVariance: 0.3,
@@ -36,7 +39,7 @@ export default class GameLogic {
     });
 
     // Create road mesh and render class
-    const roadMesh = new Mesh(this.#renderer.gl, road.positions, road.indices);
+    const roadMesh = new Mesh(this.#renderer.gl, this.#road.positions, this.#road.indices);
     const roadClass = new UnlitSolidClass(this.#renderer.gl, roadMesh);
     this.#roadInstance = roadClass.createInstance();
     this.#roadInstance.color = new Vec3(0.24, 0.26, 0.28);
@@ -45,10 +48,6 @@ export default class GameLogic {
 
     this.#renderer.addRenderClass(roadClass);
 
-    this.#createCarMesh();
-  }
-
-  #createCarMesh() {
     // prettier-ignore
     const cubePositions = new Float32Array([
       -0.5, -0.5, -0.5,
@@ -94,6 +93,14 @@ export default class GameLogic {
     CarPhysics.applySteering(this.#car, inputStates, dt);
     CarPhysics.applyFriction(this.#car, dt);
     CarPhysics.updatePosition(this.#car, CarPhysics.NextPosition(this.#car,dt));
+
+    let p = new Vec3(this.#car.position.x,this.#car.position.y,0);
+
+    if(collideRoad(this.#road, p)) {
+      this.#carInstance.color = new Vec3(0,1,0);
+    } else {
+      this.#carInstance.color = new Vec3(1,0,0);
+    }
 
     // Update car render instance position
     this.#carInstance.translation = new Vec3(
