@@ -48,30 +48,9 @@ app.get("/api/start", function(req,res){
         games[gid] = gm
         
     }
-    if(games.gid[P1]==null){
-        games.gid.Players.push(pid)
-        pl[playernumber]=1
-        games.gid[numPlayers]=1
-    }
-    else if(games.gid[P2]==null){
-        games.gid.Players.push(pid)
-        pl[playernumber]=2
-        games.gid[numPlayers]=2
-    }
-    else if(games.gid[P3]==null){
-        games.gid.Players.push(pid)
-        pl[playernumber]=3
-        games.gid[numPlayers]=3
-    }
-    else if(games.gid[P4]==null){
-        games.gid.Players.push(pid)
-        pl[playernumber]=4
-        games.gid[numPlayers]=4
-    }
-    else{
-        res.send("game is full")
-        return
-    }
+    games.gid.Players.push(pid)
+    pl[playernumber]=games.gid.Players.length
+    games.gid[numPlayers]=games.gid.Players.length
     clients[pid] = ncr
 
 })
