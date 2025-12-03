@@ -80,9 +80,6 @@ export function buildRoadMesh(
     indices.push(...roadIndicesSlice.map((x) => x + offset));
   }
 
-  console.log(vertices);
-  console.log(indices);
-
   return {
     positions: new Float32Array(vertices),
     indices: new Uint32Array(indices),

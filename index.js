@@ -6,7 +6,7 @@ const port = 3000
 const path = require('path');
 
 app.get('/', (req, res) => {
-  res.send('Hello World!')
+  res.sendFile(path.join(__dirname, 'index.html'))
 })
 
 app.use('/test', express.static('test'));

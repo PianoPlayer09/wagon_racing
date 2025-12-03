@@ -91,7 +91,5 @@ function createControlPoints(
     );
   }
 
-  console.log(points)
-
   return points;
 }
