@@ -2,6 +2,7 @@ import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+const {v4: uuidv4} = require('uuid')
 
 import express from 'express';
 import parser from 'body-parser';
@@ -28,7 +29,7 @@ app.use(parser.json())
  */
 app.get("/api/start", function(req,res){
     let gid = req.query.gameid
-    let pid = req.query.playerid
+    let pid = uuidv4()
     let krt = req.query.kart
     let clr = req.query.color
     let gm = {
@@ -52,6 +53,10 @@ app.get("/api/start", function(req,res){
     pl[playernumber]=games.gid.Players.length
     games.gid[numPlayers]=games.gid.Players.length
     clients[pid] = ncr
+    packet={
+        playerid:`${pid}`
+    }
+    res.send(JSON.stringify(packet))
 
 })
 //sends player info as detailed in the api
