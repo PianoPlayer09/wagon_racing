@@ -78,16 +78,16 @@ app.get('/api/game', function(req,res){
     let packet = {
         obstacles:`${gm.track[obstacles]}`,
         players:``,
-        positions:``,
+        cars:``,
     }
     let players=gm.Players
-    let positions=[]
+    let crs=[]
     for(let p of players){
-        let pos= `(${p})=(${clients.p.car.position[x]}, ${clients.p.car.position[y]})`
-        positions.push[pos]
+        let cr= `(${p})=(${clients.p.car}, ${clients.p.car})`
+        crs.push[cr]
     }
-    packet[players]=players
-    packet[positions]=positions
+    packet.players=players
+    packet.cars=crs
     res.send(JSON.stringify(packet))
 
     
