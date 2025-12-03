@@ -12,16 +12,19 @@
   },
   "license": "ISC",
   "author": "",
-  "type": "commonjs",
+  "type": "module",
   "main": "index.js",
   "scripts": {
-    "build": "tsc",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "concurrently \"vite\" \"npm run server\"",
+    "server": "node mkserver.js",
+    "build": "vite build"
   },
   "dependencies": {
     "express": "^5.1.0"
   },
   "devDependencies": {
-    "typescript": "^5.9.3"
+    "concurrently": "^8.2.2",
+    "typescript": "^5.9.3",
+    "vite": "^7.2.6"
   }
 }

@@ -1,13 +1,13 @@
-const express = require("express")
-const parser = require("body-parser")
-const path = require("path")
-const {v4: uuidv4} = require('uuid')
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
-const cars = require(path.join(__dirname, 'src', 'Car.js'))
-const carphys=require(path.join(__dirname, 'src', 'CarPhysics.ts'))
+import express from 'express';
+import parser from 'body-parser';
+import path from 'path';
 
-//should prob implement a class for tracks
-const track=require(path.join(__dirname, 'src', 'track.js'))
+import ItalianCar from './src/Car.js';
 
 //object of all games in the form: (gameid):(game object)
 const games = {}
@@ -20,18 +20,13 @@ const app = express();
 app.use("/static", express.static(path.join(__dirname, "public")) )
 app.use(parser.json())
 
-
-
-app.get("/wagon_race", function(req, res){
-    res.sendFile(path.join(__dirname, "index.html"))
-})
 /**
  * joins a game with the provided gameid and creates a new one if it doen't exist
  * game objects have a track object, a list of player ids, and the number of players
  * also creates a new player object
  * player objects have their playerids, gameids, player number, and their car object
  */
-app.get("/wagon_race/start", function(req,res){
+app.get("/api/start", function(req,res){
     let gid = req.query.gameid
     let pid = req.query.playerid
     let krt = req.query.kart
@@ -41,7 +36,7 @@ app.get("/wagon_race/start", function(req,res){
         Players: [],
         numPlayers: null,
     }
-    let ncr = new cars(clr,krt)
+    let ncr = new ItalianCar(clr,krt)
     let pl = {
         playerid: pid,
         gameid: gid,
@@ -81,7 +76,7 @@ app.get("/wagon_race/start", function(req,res){
 
 })
 //sends player info as detailed in the api
-app.get('/wagon_race/player', function(req, res){
+app.get('/api/player', function(req, res){
     const pid = req.query.playerid
     const packet={
         position: `(${clients.pid.car.position[x]}, ${clients.pid.car.position[y]})`,
@@ -93,7 +88,7 @@ app.get('/wagon_race/player', function(req, res){
 })
 
 //sends game info as detailed in the api
-app.get('/wagon_race/game', function(req,res){
+app.get('/api/game', function(req,res){
     const gid = req.query.gameid
     const gm = games[gid]
     let packet = {
@@ -116,7 +111,7 @@ app.get('/wagon_race/game', function(req,res){
 })
 
 //updates pos,vel, and acc of a valid player in a valid game
-app.post('/wagon_race/val', function(req, res){
+app.post('/api/val', function(req, res){
     const packet = {
         status: 'error',
         message: 'prob an invalid ID or smth'
@@ -156,7 +151,7 @@ function sendEvent(gameid, playerId){
 }
 
 //sets up event stream, idk how though
-app.get("/wagon_race/events", function(req, res){
+app.get("/api/events", function(req, res){
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -174,3 +169,7 @@ app.get("/wagon_race/events", function(req, res){
         res.end();
     })
 })
+
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
