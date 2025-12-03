@@ -16,15 +16,17 @@ export default class GameLogic {
     loop(time: number) {
         const change = (time - this.#dt) / 1000;
         this.#dt = time;
-        CarPhysics.updatePosition(this.#car, change);
+        //Applying Car Physics methods.
         CarPhysics.applyAcceleration(this.#car, inputStates, change);
         CarPhysics.applySteering(this.#car, inputStates, change);
         CarPhysics.applyFriction(this.#car, change);
+        CarPhysics.updatePosition(this.#car, change);
 
-        //Add renderer later...
+        
+        
         
 
-        requestAnimationFrame(this.loop.bind(this));
+        requestAnimationFrame(this.loop.bind(this)); //We do this so that we don't loose concept of this or class, since pasing as raw = loosing class context
     }
     //Render not making sense to me rn, so just focusing on logic for now
 

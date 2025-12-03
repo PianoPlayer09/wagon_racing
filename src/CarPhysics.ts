@@ -1,6 +1,8 @@
 import ItalianCar from "./Car"
 import {InputStates, inputStates} from "./input"
+import * as CollisionSystem from "./CollisionSystem.js";
 // all funcitions will be static
+
 export default class CarPhysics {
     //Things to implement:
 
@@ -8,7 +10,9 @@ export default class CarPhysics {
         this.applySteering(car, input, dt);
         this.applyAcceleration(car, input, dt);
         this.applyFriction(car, dt);
-        this.updatePosition(car, dt);
+
+        let nextMove = this.NextPosition(car, dt);
+        return nextMove;
     }
     //acceleratoin/Velocity update ( we can use some sort of sqrt function to make it approach max speed asymptotically)
     
@@ -24,23 +28,16 @@ export default class CarPhysics {
         
         if (input.up) {
             let d =car.acceleration * dt;
-            car.currentSpeed += d;
+            car.currentSpeed += Math.min(d, car.maxSpeed - car.currentSpeed);
         }
         if (input.down) {
             let d =car.acceleration * dt;
-            car.currentSpeed -= d; //currently simple deceleration: same factor as acceleration. Can change later to simulate braking better.
+            car.currentSpeed -= Math.min(d, car.currentSpeed); //currently simple deceleration: same factor as acceleration. Can change later to simulate braking better.
         }
     }
-    //update positions based on speed and direction
-    static updatePosition(car: ItalianCar, dt: number) {
-        // Update position based on current speed and direction (theta)
-        const radians = car.theta * (Math.PI / 180);
-        car.x += car.currentSpeed * Math.cos(radians) * dt;
-        car.y += car.currentSpeed * Math.sin(radians) * dt;
-    }
-
+  
     //asumes coordinate system is staightforward such that right is pos. and left is neg.
-    //Turing/Steerign
+    //Turing/Steering
     static applySteering(car: ItalianCar, input: InputStates, dt: number) {
         if (input.left) {
             car.theta -= car.handling  * dt; 
@@ -53,11 +50,22 @@ export default class CarPhysics {
       //Friction/Drag ( @Thomas)
     static applyFriction(car: ItalianCar, dt: number) {
         const frictionCoefficient = 0.1; // Adjust this value to change the friction effect
-        car.currentSpeed*=frictionCoefficient*dt;
+        car.currentSpeed*=(1-frictionCoefficient)*dt;
+        if (Math.abs(car.currentSpeed) < 0.01) {
+            car.currentSpeed = 0; 
         }
-
+    }
     // Collision Detection/Response 
-    // To be implemented later with track boundaries and other cars.
-
-    //we can add optional drift checker later for rendering effects(if both up/down and left/right are pressed & above certain speed)
+    //https://developer.mozilla.org/en-US/docs/Games/Techniques/2D_collision_detection
+        //   predicts based on speed and direction
+    static NextPosition(car: ItalianCar, dt: number) {
+        // Update position based on current speed and direction (theta)
+        let x_change = car.currentSpeed * Math.cos(car.theta) * dt;
+        let y_change = car.currentSpeed * Math.sin(car.theta) * dt;
+        return {x: car.x + x_change, y: car.y + y_change};
+    }
+    static updatePosition(car: ItalianCar, nextMove: {x: number, y: number}) {
+        car.x = nextMove.x;
+        car.y = nextMove.y;
+    }
 }
