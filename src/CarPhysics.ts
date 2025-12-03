@@ -51,8 +51,10 @@ export default class CarPhysics {
     static applyFriction(car: ItalianCar, dt: number) {
         const frictionCoefficient = 0.1; // Adjust this value to change the friction effect
         car.currentSpeed*=(1-frictionCoefficient)*dt;
+        if (Math.abs(car.currentSpeed) < 0.01) {
+            car.currentSpeed = 0; 
         }
-
+    }
     // Collision Detection/Response 
     //https://developer.mozilla.org/en-US/docs/Games/Techniques/2D_collision_detection
         //   predicts based on speed and direction
@@ -62,5 +64,8 @@ export default class CarPhysics {
         let y_change = car.currentSpeed * Math.sin(car.theta) * dt;
         return {x: car.x + x_change, y: car.y + y_change};
     }
-
+    static updatePosition(car: ItalianCar, nextMove: {x: number, y: number}) {
+        car.x = nextMove.x;
+        car.y = nextMove.y;
+    }
 }

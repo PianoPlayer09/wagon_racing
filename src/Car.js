@@ -4,9 +4,9 @@
 
 //Const acceperation. Percent of 
 const KART_PRESETS = {
-  light:  { handling: 0.9, acceleration: 30, maxSpeed: 150 },
-  medium: { handling: 0.7, acceleration: 25, maxSpeed: 160},
-  heavy:  { handling: 0.5, acceleration: 23, maxSpeed: 190 }
+  light:  { handling: 2.5, acceleration: 30, maxSpeed: 150 },
+  medium: { handling: 2.0, acceleration: 25, maxSpeed: 160},
+  heavy:  { handling: 1.5, acceleration: 23, maxSpeed: 190 }
 };
 
 
@@ -38,6 +38,7 @@ export default class ItalianCar {
         this.#y = 0; // Initial Y position  --- NOT SURE WHERE WE NEED TO SET THIS BUT YEA
         this.#coins = 0;
         this.#theta = 0; // initial direction angle ---MIGHT have to change to 90. Depends on how we implement certain things
+        //theta is in RADIANS!
     }
     get color() {
         return this.#color;
