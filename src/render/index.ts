@@ -4,4 +4,5 @@ export { Mesh } from "./Mesh.js";
 export { Shader } from "./Shader.js";
 export { RenderClass } from "./RenderClass.js";
 export { RenderInstance } from "./RenderInstance.js";
+export { Renderer, type RendererOptions } from "./Renderer.js";
 export * from "./objects/index.js";
