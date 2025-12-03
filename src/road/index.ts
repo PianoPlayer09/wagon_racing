@@ -1,0 +1,97 @@
+import { Vec3 } from "../math";
+import { catmullRom } from "./curve";
+import { buildRoadMesh } from "./mesh";
+
+const DEFAULT_OPTIONS: ProceduralRoadOptions = {
+  controlPointCount: 12,
+  baseRadius: 40,
+  radiusVariance: 0.35,
+  elevationRange: 2,
+  width: 6,
+  depth: 2,
+  samplesPerSegment: 24,
+};
+
+export interface ProceduralRoadOptions {
+  controlPointCount: number;
+  baseRadius: number;
+  radiusVariance: number;
+  elevationRange: number;
+  width: number;
+  depth: number;
+  samplesPerSegment: number;
+}
+
+export interface ProceduralRoad {
+  positions: Float32Array;
+  indices: Uint32Array;
+  centerline: Vec3[];
+}
+
+export function generateRoad(
+  centerline: Vec3[],
+  width: number,
+  depth: number
+): ProceduralRoad {
+  const { positions, indices } = buildRoadMesh(
+    centerline,
+    width,
+    depth
+  );
+
+  return {
+    positions,
+    indices,
+    centerline
+  };
+}
+
+export function generateProceduralRoad(
+  opts: ProceduralRoadOptions 
+): ProceduralRoad {
+  const controlPoints = createControlPoints(opts);
+
+  const centerline = catmullRom(
+    controlPoints,
+    opts.samplesPerSegment,
+  );
+
+  const { positions, indices } = buildRoadMesh(
+    centerline,
+    opts.width,
+    opts.depth
+  );
+
+  return {
+    positions,
+    indices,
+    centerline,
+  };
+}
+
+function createControlPoints(
+  options: ProceduralRoadOptions,
+): Vec3[] {
+  const points: Vec3[] = [];
+  const step = (Math.PI * 2) / options.controlPointCount;
+
+  for (let i = 0; i < options.controlPointCount; i += 1) {
+    const angle = i * step;
+    const radius =
+      options.baseRadius *
+      (1 + (Math.random() * 2 - 1) * options.radiusVariance);
+    const z = (Math.random() * 2 - 1) * options.elevationRange;
+
+    points.push(
+      new Vec3(
+        Math.cos(angle) * radius,
+        Math.sin(angle) * radius,
+        z,
+      ),
+    );
+  }
+
+  console.log(points)
+
+  return points;
+}

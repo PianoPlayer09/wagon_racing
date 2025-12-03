@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Road Procedural Test</title>
+    <style>
+      body,
+      html {
+        margin: 0;
+        height: 100%;
+        width: 100%;
+        background: #03030c;
+        color: #e8e8e8;
+      }
+
+      canvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+
+      .overlay {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        padding: 10px 10px;
+        background: rgba(0, 0, 0, 0.75);
+        border-radius: 12px;
+        max-width: 280px;
+        font-family: system-ui, sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="test-canvas"></canvas>
+    <div class="overlay">
+      Click to lock the pointer; use WASD + Q/E to fly around the track.
+    </div>
+    <script type="module" src="./road-test.js"></script>
+  </body>
+</html>
