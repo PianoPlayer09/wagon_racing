@@ -57,7 +57,7 @@ export default class GameLogic {
 
     this.#renderer.setFollowTarget(
       new Vec3(this.#car.position.x, this.#car.position.y, 0),
-      this.#car.theta
+      this.#car.theta,
     );
 
     // prettier-ignore
@@ -102,7 +102,16 @@ export default class GameLogic {
 
     this.#road = generateProceduralRoad(roadData);
 
-    console.log(this.#road);
+    const initialTangent = Vec3.subtract(
+      this.#road.centerline[1],
+      this.#road.centerline[0],
+    );
+    const initialTheta = Math.atan2(initialTangent.y, initialTangent.x);
+
+    this.#car.initialX = this.#road.centerline[0].x;
+    this.#car.initialY = this.#road.centerline[0].y;
+    this.#car.initialTheta = initialTheta;
+    this.#car.resetToInitialPosition();
 
     // Create road mesh and render class
     const roadMesh = new Mesh(
@@ -133,7 +142,7 @@ export default class GameLogic {
 
   async loop(dt: number, time: number) {
     //Applying Car Physics methods.
-    if(this.#justResynced) return
+    if (this.#justResynced) return;
     const nextP = CarPhysics.update(this.#car, inputStates, dt);
     CarPhysics.updatePosition(this.#car, nextP);
 
@@ -143,6 +152,8 @@ export default class GameLogic {
       this.#carInstance.color = new Vec3(0, 1, 0);
     } else {
       this.#carInstance.color = new Vec3(1, 0, 0);
+      // Reset car to start when it goes offroad
+      this.#car.resetToInitialPosition();
     }
 
     // Update car render instance position
@@ -158,13 +169,19 @@ export default class GameLogic {
       const targetPos = new Vec3(this.#car.position.x, this.#car.position.y, 0);
       const smoothingFactor = 1 - Math.exp(-this.#cameraTargetSmoothness * dt);
 
-      this.#cameraTargetPosition.x += (targetPos.x - this.#cameraTargetPosition.x) * smoothingFactor;
-      this.#cameraTargetPosition.y += (targetPos.y - this.#cameraTargetPosition.y) * smoothingFactor;
+      this.#cameraTargetPosition.x +=
+        (targetPos.x - this.#cameraTargetPosition.x) * smoothingFactor;
+      this.#cameraTargetPosition.y +=
+        (targetPos.y - this.#cameraTargetPosition.y) * smoothingFactor;
 
-      this.#renderer.setFollowTarget(this.#cameraTargetPosition, this.#car.theta);
+      this.#renderer.setFollowTarget(
+        this.#cameraTargetPosition,
+        this.#car.theta,
+      );
     }
 
-    if (this.#pid != "" && !this.#justResynced) clientSendCar(this.#gid, this.#pid, this.#car);
+    if (this.#pid != "" && !this.#justResynced)
+      clientSendCar(this.#gid, this.#pid, this.#car);
 
     const blankInputs = { up: false, down: false, right: false, left: false };
 
@@ -180,7 +197,7 @@ export default class GameLogic {
     }
   }
 
-  #justResynced: boolean = false
+  #justResynced: boolean = false;
 
   handleWebSocketMessage(data: any) {
     if (data.type == "state") {
@@ -218,9 +235,9 @@ export default class GameLogic {
             this.#car.theta = v.car.theta;
             this.#car.currentSpeed = v.car.currentSpeed;
             this.#car.omega = v.car.omega;
-            this.#justResynced = true
+            this.#justResynced = true;
           } else {
-            this.#justResynced = false
+            this.#justResynced = false;
           }
         }
       }

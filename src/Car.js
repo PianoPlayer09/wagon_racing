@@ -20,10 +20,13 @@ export default class ItalianCar {
   #x;
   #y;
   #omega; // angular velocity
+  initialX;
+  initialY;
+  initialTheta;
   width = 30;
   length = 120;
   #coins; //def the speedboost
-  constructor(color, type) {
+  constructor(color, type, initialX = 0, initialY = 0, initialTheta = 0) {
     this.#color = color;
     if (!KART_PRESETS[type]) {
       type = "medium"; // Default to medium if invalid type
@@ -34,11 +37,14 @@ export default class ItalianCar {
     this.#acceleration = preset.acceleration;
     this.#maxSpeed = preset.maxSpeed;
     this.#currentSpeed = 0;
-    this.#x = 0; // Initial X position
-    this.#y = 0; // Initial Y position
+    this.#x = initialX; // Initial X position
+    this.#y = initialY; // Initial Y position
     this.#omega = 0; // initial angular velocity
     this.#coins = 0;
-    this.#theta = 0; // initial direction angle
+    this.#theta = initialTheta; // initial direction angle
+    this.initialX = initialX;
+    this.initialY = initialY;
+    this.initialTheta = initialTheta;
     //theta is in RADIANS!
   }
   get x() {
@@ -94,5 +100,13 @@ export default class ItalianCar {
   }
   set y(posY) {
     this.#y = posY;
+  }
+
+  resetToInitialPosition() {
+    this.#x = this.initialX;
+    this.#y = this.initialY;
+    this.#theta = this.initialTheta;
+    this.#currentSpeed = 0;
+    this.#omega = 0;
   }
 }

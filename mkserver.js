@@ -5,16 +5,23 @@ const __dirname = dirname(__filename);
 import { v4 as uuidv4 } from "uuid";
 
 import express from "express";
-import { createServer } from 'http';
+import { createServer } from "http";
 import parser from "body-parser";
 import path from "path";
 
 import { WebSocketServer, WebSocket } from "ws";
+import { Vec3 } from "./src/math.ts";
 
 import ItalianCar from "./src/Car.js";
 
-import CarPhysics from "./src/CarPhysics.ts"
-import { createControlPoints, DEFAULT_OPTIONS } from "./src/road/index.js"
+import CarPhysics from "./src/CarPhysics.ts";
+import {
+  collideRoad,
+  createControlPoints,
+  DEFAULT_OPTIONS,
+} from "./src/road/index.js";
+
+import { catmullRom } from "./src/road/curve.ts";
 
 //object of all games in the form: (gameid):(game object)
 const games = {};
@@ -31,12 +38,11 @@ app.use("/static", express.static(path.join(__dirname, "public")));
 app.use(parser.json());
 
 //https://betterstack.com/community/guides/scaling-nodejs/express-websockets/
-const server = createServer(app)
+const server = createServer(app);
 const wss = new WebSocketServer({ server });
 
 wss.on("connection", (ws) => {
   ws.on("message", (msg) => {
-
     const data = JSON.parse(msg.toString());
 
     let gameid = data.gid;
@@ -76,7 +82,7 @@ function broadcastState() {
         y: data.car.y,
         theta: data.car.theta,
         currentSpeed: data.car.currentSpeed,
-        omega: data.car.omega
+        omega: data.car.omega,
       },
     })),
   };
@@ -98,7 +104,24 @@ const zeroInput = {
 function stepPhysics() {
   for (let i in clients) {
     const nextP = CarPhysics.update(clients[i].car, zeroInput, tickDt);
-    CarPhysics.updatePosition(clients[i].car, nextP);
+    const road = roads[clients[i].game];
+
+    // if (!collideRoad(road, nextP)) {
+    //   const initialTangent = Vec3.subtract(
+    //     road.centerline[1],
+    //     road.centerline[0],
+    //   );
+    //   const initialTheta = Math.atan2(initialTangent.y, initialTangent.x);
+    //
+    //   clients[i].car.x = road.centerline[0].x;
+    //   clients[i].car.y = road.centerline[0].y;
+    //   clients[i].car.initialTheta = initialTheta;
+    //
+    //   console.log("resetting");
+    //   clients[i].car.resetToInitialPosition();
+    // } else {
+    //   CarPhysics.updatePosition(clients[i].car, nextP);
+    // }
   }
 }
 
@@ -111,12 +134,24 @@ app.get("/api/road/controlpoints", function (req, res) {
   const gid = req.query.gameid;
 
   if (!roads[gid]) {
-    roads[gid] = JSON.parse(JSON.stringify(DEFAULT_OPTIONS))
-    roads[gid].controlPoints = createControlPoints(DEFAULT_OPTIONS).map(v => [v.x,v.y,v.z])
-    console.log(roads[gid].controlPoints)
+    roads[gid] = JSON.parse(JSON.stringify(DEFAULT_OPTIONS));
+    roads[gid].controlPoints = createControlPoints(DEFAULT_OPTIONS).map((v) => [
+      v.x,
+      v.y,
+      v.z,
+    ]);
+
+    roads[gid].centerline = catmullRom(
+      roads[gid].controlPoints,
+      roads[gid].samplesPerSegment,
+    );
   }
 
+  // avoid sending big centerline data that is going to be regenerated anyways
+  const centerline = roads[gid].centerline;
+  roads[gid].centerline = undefined;
   res.json(roads[gid]);
+  roads[gid].centerline = centerline;
 });
 
 /**
@@ -148,7 +183,7 @@ app.get("/api/start", function (req, res) {
   games[gid].Players.push(pid);
   pl.playernumber = games[gid].Players.length;
   games[gid].numPlayers = games[gid].Players.length;
-  clients[pid] = { car: ncr };
+  clients[pid] = { game: gid, car: ncr };
   const packet = {
     playerid: `${pid}`,
   };
