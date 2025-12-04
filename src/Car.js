@@ -92,13 +92,9 @@ export default class ItalianCar {
     }
     set xvel(xv){
         this.#xvel = xv
-        //this.#currentSpeed=Math.SQRT((this.#xvel**2)+(this.#yvel)**2)
-        this.#theta=Math.atan(this.#yvel/this.#xvel)
     }
     set yvel(yv){
         this.#yvel = yv
-        //this.#currentSpeed=Math.SQRT((this.#xvel**2)+(this.#yvel)**2)
-        this.#theta=Math.atan(this.#yvel/this.#xvel)
     }
     set xacc(xa){
         this.#xacc=xa

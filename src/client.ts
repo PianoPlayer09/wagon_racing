@@ -33,7 +33,7 @@ export async function clientSendCar(gid: string, pid: string, car: ItalianCar) {
     type: "car",
     gid: gid,
     pid: pid,
-    tick: Date.now(),
+    tick: 0,
     xPos: car.x,
     yPos: car.y,
     xVel: car.velocity.xvel,

@@ -13,11 +13,7 @@ import {
   generateProceduralRoad,
   ProceduralRoad,
 } from "./road/index";
-import {
-  clientSendCar,
-  clientStart,
-  onSocketMessage,
-} from "./client.js";
+import { clientSendCar, clientStart, onSocketMessage } from "./client.js";
 
 //some form or something to create cars based on user input before joining game
 
@@ -32,6 +28,9 @@ export default class GameLogic {
 
   #renderer: Renderer;
   #carClass: UnlitSolidClass;
+
+  #otherCars: Map<string, { car: ItalianCar; instance: UnlitSolidInstance }> =
+    new Map();
 
   constructor(canvas: HTMLCanvasElement, gid: string, clr: Vec3) {
     this.#gid = gid;
@@ -91,11 +90,7 @@ export default class GameLogic {
       0, 1, 5, 0, 5, 4,
     ]);
 
-    const carMesh = new Mesh(
-      this.#renderer.gl,
-      cubePositions,
-      cubeIndices,
-    );
+    const carMesh = new Mesh(this.#renderer.gl, cubePositions, cubeIndices);
     this.#carClass = new UnlitSolidClass(this.#renderer.gl, carMesh);
     this.#carInstance = this.#carClass.createInstance();
     this.#carInstance.color = new Vec3(1, 0, 0);
@@ -135,8 +130,60 @@ export default class GameLogic {
     );
     this.#carInstance.rotation = new Vec3(0, 0, this.#car.theta);
 
-    if(this.#pid != "") clientSendCar(this.#gid, this.#pid, this.#car);
+    if (this.#pid != "") clientSendCar(this.#gid, this.#pid, this.#car);
+
+    const blankInputs = { up: false, down: false, right: false, left: false };
+
+    for (let other of this.#otherCars.values()) {
+      // console.log(other.car.position)
+      // console.log(other.car.velocity)
+      const nextP = CarPhysics.update(other.car, blankInputs, dt);
+      CarPhysics.updatePosition(other.car, nextP);
+
+      other.instance.translation = new Vec3(
+        other.car.x,
+        other.car.y,
+        0.1,
+      );
+
+      other.instance.rotation = new Vec3(0, 0, other.car.theta);
+    }
   }
 
-  handleWebSocketMessage(data: any) { console.log("recieved message: ", data)}
+  handleWebSocketMessage(data: any) {
+    if (data.type == "state") {
+      for (let v of data.cars) {
+        if (v.pid != this.#pid) {
+          if (!this.#otherCars.get(v.pid)) {
+            console.log("created new!")
+
+            let instance =this.#carClass.createInstance()
+
+            instance.scale = new Vec3(2, 1, 2);
+            instance.color = new Vec3(0,0,1)
+
+            this.#otherCars.set(v.pid, {
+              car: new ItalianCar(new Vec3(0, 0, 1), "medium"),
+              instance
+            });
+          }
+
+          let car = this.#otherCars.get(v.pid)!.car;
+
+          car.x = v.car.x;
+          car.y = v.car.y;
+          car.xvel = v.car.xvel;
+          car.yvel = v.car.yvel;
+          car.xacc = v.car.xacc;
+          car.yacc = v.car.yacc;
+
+          const newTheta = Math.atan2(car.velocity.yvel,car.velocity.xvel)
+          if(!isNaN(newTheta)) car.theta = newTheta;
+
+          car.currentSpeed = Math.hypot(car.velocity.xvel,car.velocity.yvel)
+
+        }
+      }
+    }
+  }
 }

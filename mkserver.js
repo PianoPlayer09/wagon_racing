@@ -34,11 +34,8 @@ const wss = new WebSocketServer({ server });
 wss.on("connection", (ws) => {
   ws.on("message", (msg) => {
 
-    const data = JSON.parse(msg);
+    const data = JSON.parse(msg.toString());
 
-
-    console.log("clients:", JSON.stringify(clients))
-    console.log(JSON.stringify(data))
 
     let gameid = data.gid;
     if (!games[gameid]) {
@@ -51,7 +48,8 @@ wss.on("connection", (ws) => {
       return;
     }
 
-    if (msg.type == "car") {
+
+    if (data.type == "car") {
       clients[playerid].tick = data.tick;
       clients[playerid].car.x = data.xPos;
       clients[playerid].car.y = data.yPos;
@@ -64,7 +62,7 @@ wss.on("connection", (ws) => {
 });
 
 let serverTick = 0;
-const tickRate = 30;
+const tickRate = 60;
 const tickDt = 1.0 / tickRate;
 
 function broadcastState() {
@@ -73,10 +71,19 @@ function broadcastState() {
     tick: serverTick++,
     cars: Object.entries(clients).map(([pid, data]) => ({
       pid: pid,
-      car: data.car,
+      car: {
+        x: data.car.x,
+        y: data.car.y,
+        xvel: data.car.velocity.xvel,
+        yvel: data.car.velocity.yvel,
+        xacc: data.car.xacc,
+        yacc: data.car.yacc
+      },
     })),
   };
+
   const payload = JSON.stringify(snapshot);
+
   for (const ws of wss.clients) {
     if (ws.readyState === WebSocket.OPEN) ws.send(payload);
   }
@@ -91,8 +98,8 @@ const zeroInput = {
 
 function stepPhysics() {
   for (let i in clients) {
-    const nextP = CarPhysics.update(clients[i].car, zeroInput, tickDt);
-    CarPhysics.updatePosition(clients[i].car, nextP);
+    //const nextP = CarPhysics.update(clients[i].car, zeroInput, tickDt);
+    //CarPhysics.updatePosition(clients[i].car, nextP);
   }
 }
 

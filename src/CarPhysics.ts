@@ -57,8 +57,10 @@ export default class CarPhysics {
         //   predicts based on speed and direction
     static NextPosition(car: ItalianCar, dt: number) {
         // Update position based on current speed and direction (theta)
-        let x_change = car.currentSpeed * Math.cos(car.theta) * dt;
-        let y_change = car.currentSpeed * Math.sin(car.theta) * dt;
+        car.xvel = car.currentSpeed * Math.cos(car.theta)
+        car.yvel = car.currentSpeed * Math.sin(car.theta)
+        let x_change = car.velocity.xvel * dt;
+        let y_change = car.velocity.yvel * dt;
         return {x: car.x + x_change, y: car.y + y_change};
     }
     static updatePosition(car: ItalianCar, nextMove: {x: number, y: number}) {
