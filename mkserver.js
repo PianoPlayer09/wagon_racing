@@ -97,8 +97,8 @@ const zeroInput = {
 
 function stepPhysics() {
   for (let i in clients) {
-    //const nextP = CarPhysics.update(clients[i].car, zeroInput, tickDt);
-    //CarPhysics.updatePosition(clients[i].car, nextP);
+    const nextP = CarPhysics.update(clients[i].car, zeroInput, tickDt);
+    CarPhysics.updatePosition(clients[i].car, nextP);
   }
 }
 

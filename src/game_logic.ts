@@ -23,6 +23,9 @@ import {
 
 //some form or something to create cars based on user input before joining game
 
+const POS_DESYNC_THRESH = 1;
+const THETA_DESYNC_THRESH = 1;
+
 export default class GameLogic {
   #car: ItalianCar;
   #carInstance: UnlitSolidInstance;
@@ -122,6 +125,7 @@ export default class GameLogic {
 
   async loop(dt: number, time: number) {
     //Applying Car Physics methods.
+    if(this.#justResynced) return
     const nextP = CarPhysics.update(this.#car, inputStates, dt);
     CarPhysics.updatePosition(this.#car, nextP);
 
@@ -141,7 +145,7 @@ export default class GameLogic {
     );
     this.#carInstance.rotation = new Vec3(0, 0, this.#car.theta);
 
-    if (this.#pid != "") clientSendCar(this.#gid, this.#pid, this.#car);
+    if (this.#pid != "" && !this.#justResynced) clientSendCar(this.#gid, this.#pid, this.#car);
 
     const blankInputs = { up: false, down: false, right: false, left: false };
 
@@ -156,6 +160,8 @@ export default class GameLogic {
       other.instance.rotation = new Vec3(0, 0, other.car.theta);
     }
   }
+
+  #justResynced: boolean = false
 
   handleWebSocketMessage(data: any) {
     if (data.type == "state") {
@@ -182,6 +188,21 @@ export default class GameLogic {
           car.theta = v.car.theta;
           car.currentSpeed = v.car.currentSpeed;
           car.omega = v.car.omega;
+        } else {
+          if (
+            Math.abs(this.#car.x - v.car.x) > POS_DESYNC_THRESH ||
+            Math.abs(this.#car.y - v.car.y) > POS_DESYNC_THRESH ||
+            Math.abs(this.#car.theta - v.car.theta) > THETA_DESYNC_THRESH
+          ) {
+            this.#car.x = v.car.x;
+            this.#car.y = v.car.y;
+            this.#car.theta = v.car.theta;
+            this.#car.currentSpeed = v.car.currentSpeed;
+            this.#car.omega = v.car.omega;
+            this.#justResynced = true
+          } else {
+            this.#justResynced = false
+          }
         }
       }
     }
