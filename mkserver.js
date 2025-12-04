@@ -56,6 +56,8 @@ wss.on("connection", (ws) => {
       return;
     }
 
+    clients[playerid].ws = ws;
+
     if (data.type == "car") {
       clients[playerid].tick = data.tick;
       clients[playerid].car.x = data.xPos;
@@ -63,6 +65,21 @@ wss.on("connection", (ws) => {
       clients[playerid].car.theta = data.theta;
       clients[playerid].car.currentSpeed = data.currentSpeed;
       clients[playerid].car.omega = data.omega;
+    }
+  });
+
+  ws.on("close", () => {
+    console.log("socket disconnected");
+    for (const [pid, client] of Object.entries(clients)) {
+      if (client.ws === ws) {
+        console.log(`removing disconnected player ${pid}`);
+        delete clients[pid];
+
+        const playerIndex = games[client.game].Players.indexOf(pid);
+        games[client.game].Players.splice(playerIndex, 1);
+        games[client.game].numPlayers--;
+        break;
+      }
     }
   });
 });

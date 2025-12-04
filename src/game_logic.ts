@@ -23,7 +23,7 @@ import {
 
 //some form or something to create cars based on user input before joining game
 
-const POS_DESYNC_THRESH = 1;
+const POS_DESYNC_THRESH = 5;
 const THETA_DESYNC_THRESH = 1;
 
 export default class GameLogic {
@@ -239,6 +239,16 @@ export default class GameLogic {
           } else {
             this.#justResynced = false;
           }
+        }
+      }
+
+      // remove disconnected cars from view
+      for (let pid of this.#otherCars.keys()) {
+        if (!data.cars.find((v: { pid: string; }) => v.pid == pid)) {
+          let instance = this.#otherCars.get(pid)!.instance
+
+          this.#carClass.removeInstance(instance)
+          this.#otherCars.delete(pid)
         }
       }
     }
