@@ -25,7 +25,10 @@ function establishConnection(): Promise<void> {
 export async function clientSendCar(gid: string, pid: string, car: ItalianCar) {
   await establishConnection();
   if (!websocket || websocket.readyState !== WebSocket.OPEN) {
-    console.log("NOT READY");
+    console.log("DISCONNECTED...");
+    connectionPromise = null;
+    websocket = null;
+    await establishConnection();
     return;
   }
 
@@ -74,4 +77,11 @@ export async function clientStart(gid: string, krt: string, clr: any) {
     return json as { playerid: string };
   });
   return player.playerid;
+}
+
+// get road gen options+control points
+export async function clientGetRoad(gid: string) {
+    const response = await fetch(`/api/road/controlpoints?gameid=${gid}`);
+    const data = await response.json();
+    return data;
 }

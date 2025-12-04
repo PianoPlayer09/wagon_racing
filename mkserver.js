@@ -13,13 +13,17 @@ import { WebSocketServer, WebSocket } from "ws";
 
 import ItalianCar from "./src/Car.js";
 
-import CarPhysics from "./src/CarPhysics.ts";
+import CarPhysics from "./src/CarPhysics.ts"
+import { createControlPoints, DEFAULT_OPTIONS } from "./src/road/index.js"
 
 //object of all games in the form: (gameid):(game object)
 const games = {};
 
 //object of all clients in the form: (playerid):(player object)
 const clients = {};
+
+// generated roads info by game ID
+const roads = {};
 
 const PORT = 4242;
 const app = express();
@@ -102,6 +106,18 @@ setInterval(() => {
   stepPhysics();
   broadcastState();
 }, tickDt * 1000);
+
+app.get("/api/road/controlpoints", function (req, res) {
+  const gid = req.query.gameid;
+
+  if (!roads[gid]) {
+    roads[gid] = JSON.parse(JSON.stringify(DEFAULT_OPTIONS))
+    roads[gid].controlPoints = createControlPoints(DEFAULT_OPTIONS).map(v => [v.x,v.y,v.z])
+    console.log(roads[gid].controlPoints)
+  }
+
+  res.json(roads[gid]);
+});
 
 /**
  * joins a game with the provided gameid and creates a new one if it doen't exist

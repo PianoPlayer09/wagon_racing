@@ -2,14 +2,15 @@ import { Vec3 } from "../math";
 import { catmullRom } from "./curve";
 import { buildRoadMesh } from "./mesh";
 
-const DEFAULT_OPTIONS: ProceduralRoadOptions = {
+export const DEFAULT_OPTIONS: ProceduralRoadOptions = {
   controlPointCount: 12,
-  baseRadius: 40,
-  radiusVariance: 0.35,
-  elevationRange: 2,
-  width: 6,
-  depth: 2,
+  baseRadius: 50,
+  radiusVariance: 0.1,
+  elevationRange: 0,
+  width: 2,
+  depth: 0,
   samplesPerSegment: 24,
+  controlPoints: undefined
 };
 
 export interface ProceduralRoadOptions {
@@ -20,6 +21,7 @@ export interface ProceduralRoadOptions {
   width: number;
   depth: number;
   samplesPerSegment: number;
+  controlPoints: Vec3[] | undefined
 }
 
 export interface ProceduralRoad {
@@ -53,7 +55,7 @@ export function generateRoad(
 export function generateProceduralRoad(
   opts: ProceduralRoadOptions 
 ): ProceduralRoad {
-  const controlPoints = createControlPoints(opts);
+  const controlPoints = opts.controlPoints ? opts.controlPoints : createControlPoints(opts);
 
   const centerline = catmullRom(
     controlPoints,
@@ -82,7 +84,7 @@ export function collideRoad(
   return !! road.centerline.find(x => Vec3.distance(x,p) < road.width)
 }
 
-function createControlPoints(
+export function createControlPoints(
   options: ProceduralRoadOptions,
 ): Vec3[] {
   const points: Vec3[] = [];
