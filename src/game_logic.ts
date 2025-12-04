@@ -41,6 +41,9 @@ export default class GameLogic {
   #otherCars: Map<string, { car: ItalianCar; instance: UnlitSolidInstance }> =
     new Map();
 
+  #cameraTargetPosition: Vec3 = new Vec3(0, 0, 0);
+  #cameraTargetSmoothness: number = 100;
+
   constructor(canvas: HTMLCanvasElement, gid: string, clr: Vec3) {
     this.#gid = gid;
 
@@ -151,10 +154,14 @@ export default class GameLogic {
     this.#carInstance.rotation = new Vec3(0, 0, this.#car.theta);
 
     if (this.#renderer.isFollowMode()) {
-      this.#renderer.setFollowTarget(
-        new Vec3(this.#car.position.x, this.#car.position.y, 0),
-        this.#car.theta
-      );
+      // https://lisyarus.github.io/blog/posts/exponential-smoothing.html
+      const targetPos = new Vec3(this.#car.position.x, this.#car.position.y, 0);
+      const smoothingFactor = 1 - Math.exp(-this.#cameraTargetSmoothness * dt);
+
+      this.#cameraTargetPosition.x += (targetPos.x - this.#cameraTargetPosition.x) * smoothingFactor;
+      this.#cameraTargetPosition.y += (targetPos.y - this.#cameraTargetPosition.y) * smoothingFactor;
+
+      this.#renderer.setFollowTarget(this.#cameraTargetPosition, this.#car.theta);
     }
 
     if (this.#pid != "" && !this.#justResynced) clientSendCar(this.#gid, this.#pid, this.#car);
