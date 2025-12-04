@@ -172,16 +172,9 @@ export default class GameLogic {
 
           car.x = v.car.x;
           car.y = v.car.y;
-          car.xvel = v.car.xvel;
-          car.yvel = v.car.yvel;
-          car.xacc = v.car.xacc;
-          car.yacc = v.car.yacc;
-
-          const newTheta = Math.atan2(car.velocity.yvel,car.velocity.xvel)
-          if(!isNaN(newTheta)) car.theta = newTheta;
-
-          car.currentSpeed = Math.hypot(car.velocity.xvel,car.velocity.yvel)
-
+          car.theta = v.car.theta;
+          car.currentSpeed = v.car.currentSpeed;
+          car.omega = v.car.omega;
         }
       }
     }

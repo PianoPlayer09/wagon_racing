@@ -16,6 +16,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "concurrently \"vite\" \"npm run server\"",
+    "site": "vite",
     "server": "tsx mkserver.js",
     "build": "vite build"
   },

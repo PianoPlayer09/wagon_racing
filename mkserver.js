@@ -26,7 +26,6 @@ const app = express();
 app.use("/static", express.static(path.join(__dirname, "public")));
 app.use(parser.json());
 
-
 //https://betterstack.com/community/guides/scaling-nodejs/express-websockets/
 const server = createServer(app)
 const wss = new WebSocketServer({ server });
@@ -35,7 +34,6 @@ wss.on("connection", (ws) => {
   ws.on("message", (msg) => {
 
     const data = JSON.parse(msg.toString());
-
 
     let gameid = data.gid;
     if (!games[gameid]) {
@@ -48,15 +46,13 @@ wss.on("connection", (ws) => {
       return;
     }
 
-
     if (data.type == "car") {
       clients[playerid].tick = data.tick;
       clients[playerid].car.x = data.xPos;
       clients[playerid].car.y = data.yPos;
-      clients[playerid].car.xvel = data.xVel;
-      clients[playerid].car.yvel = data.yVel;
-      clients[playerid].car.xacc = data.xAcc;
-      clients[playerid].car.yacc = data.yAcc;
+      clients[playerid].car.theta = data.theta;
+      clients[playerid].car.currentSpeed = data.currentSpeed;
+      clients[playerid].car.omega = data.omega;
     }
   });
 });
@@ -74,10 +70,9 @@ function broadcastState() {
       car: {
         x: data.car.x,
         y: data.car.y,
-        xvel: data.car.velocity.xvel,
-        yvel: data.car.velocity.yvel,
-        xacc: data.car.xacc,
-        yacc: data.car.yacc
+        theta: data.car.theta,
+        currentSpeed: data.car.currentSpeed,
+        omega: data.car.omega
       },
     })),
   };
@@ -151,8 +146,8 @@ app.get("/api/player", function (req, res) {
   const pid = req.query.playerid;
   const packet = {
     position: `(${clients.pid.car.position[x]}, ${clients.pid.car.position[y]})`,
-    velocity: `(${clients.pid.car.velocity[xvel]}, ${clients.pid.car.velocity[yvel]})`,
-    acceleration: `(${clients.pid.car.acceleration[xacc]}, ${clients.pid.car.acceleration[yacc]})`,
+    velocity: `(${clients.pid.car.currentSpeed}, ${clients.pid.car.theta})`,
+    acceleration: `(${clients.pid.car.omega})`,
   };
   res.send(JSON.stringify(packet));
 });
@@ -161,7 +156,7 @@ app.get("/api/player", function (req, res) {
 app.get("/api/game", function (req, res) {
   const gid = req.query.gameid;
   const gm = games[gid];
-  let packet = {
+  const packet = {
     obstacles: `${gm.track[obstacles]}`,
     players: ``,
     cars: ``,

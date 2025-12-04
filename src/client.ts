@@ -36,10 +36,9 @@ export async function clientSendCar(gid: string, pid: string, car: ItalianCar) {
     tick: 0,
     xPos: car.x,
     yPos: car.y,
-    xVel: car.velocity.xvel,
-    yVel: car.velocity.yvel,
-    xAcc: car.accelerationV.xacc,
-    yAcc: car.accelerationV.yacc,
+    theta: car.theta,
+    currentSpeed: car.currentSpeed,
+    omega: car.omega,
   };
 
   websocket.send(JSON.stringify(carData));
