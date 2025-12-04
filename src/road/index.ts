@@ -3,14 +3,15 @@ import { catmullRom } from "./curve";
 import { buildRoadMesh } from "./mesh";
 
 export const DEFAULT_OPTIONS: ProceduralRoadOptions = {
-  controlPointCount: 12,
+  controlPointCount: 16,
   baseRadius: 50,
-  radiusVariance: 0.1,
+  radiusVariance: 0.35,
   elevationRange: 0,
-  width: 2,
+  width: 6,
   depth: 0,
   samplesPerSegment: 24,
-  controlPoints: undefined
+  controlPoints: undefined,
+  closed: true
 };
 
 export interface ProceduralRoadOptions {
@@ -21,7 +22,8 @@ export interface ProceduralRoadOptions {
   width: number;
   depth: number;
   samplesPerSegment: number;
-  controlPoints: Vec3[] | undefined
+  controlPoints: Vec3[] | undefined,
+  closed: boolean
 }
 
 export interface ProceduralRoad {
@@ -106,5 +108,5 @@ export function createControlPoints(
     );
   }
 
-  return points;
+  return options.closed ? [points[points.length-2], points[points.length-1], ...points, points[0], points[1]] : points;
 }
