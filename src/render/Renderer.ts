@@ -132,7 +132,7 @@ export class Renderer {
     const width = Math.floor(this.canvas.clientWidth);
     const height = Math.floor(this.canvas.clientHeight);
 
-    if (this.width != width && this.height != height) {
+    if (this.width != width || this.height != height) {
       this.canvas.width = width;
       this.canvas.height = height;
       this.gl.viewport(0, 0, width, height);
