@@ -44,6 +44,9 @@ export default class GameLogic {
   #cameraTargetPosition: Vec3 = new Vec3(0, 0, 0);
   #cameraTargetSmoothness: number = 100;
 
+  #visual_substeps:number = 3;
+  #step = 0;
+
   constructor(canvas: HTMLCanvasElement, gid: string, clr: Vec3) {
     this.#gid = gid;
 
@@ -86,7 +89,7 @@ export default class GameLogic {
     this.#carClass = new UnlitSolidClass(this.#renderer.gl, carMesh);
     this.#carInstance = this.#carClass.createInstance();
     this.#carInstance.color = new Vec3(1, 0, 0);
-    this.#carInstance.scale = new Vec3(2, 1, 2);
+    this.#carInstance.scale = new Vec3(2, 1, 1);
 
     this.#renderer.addRenderClass(this.#carClass);
   }
@@ -160,7 +163,7 @@ export default class GameLogic {
     this.#carInstance.translation = new Vec3(
       this.#car.position.x,
       this.#car.position.y,
-      0.1,
+      0.5,
     );
     this.#carInstance.rotation = new Vec3(0, 0, this.#car.theta);
 
@@ -180,8 +183,9 @@ export default class GameLogic {
       );
     }
 
-    if (this.#pid != "" && !this.#justResynced)
+    if (this.#pid != "" && !this.#justResynced && this.#step % this.#visual_substeps==0)
       clientSendCar(this.#gid, this.#pid, this.#car);
+    this.#step++
 
     const blankInputs = { up: false, down: false, right: false, left: false };
 
@@ -208,7 +212,7 @@ export default class GameLogic {
 
             let instance = this.#carClass.createInstance();
 
-            instance.scale = new Vec3(2, 1, 2);
+            instance.scale = new Vec3(2, 1, 1);
             instance.color = new Vec3(0, 0, 1);
 
             this.#otherCars.set(v.pid, {
@@ -236,6 +240,7 @@ export default class GameLogic {
             this.#car.currentSpeed = v.car.currentSpeed;
             this.#car.omega = v.car.omega;
             this.#justResynced = true;
+            console.log("resync")
           } else {
             this.#justResynced = false;
           }

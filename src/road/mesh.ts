@@ -9,8 +9,8 @@ export function buildRoadMesh(
   const roadVerticesSlice = [
     new Vec3(0, -width, 0),
     new Vec3(0, width, 0),
-    // new Vec3(0, width, -depth),
-    // new Vec3(0, -width, -depth),
+    new Vec3(0, width, -depth),
+    new Vec3(0, -width, -depth),
   ];
 
   const nextSlice = roadVerticesSlice.length;
@@ -21,13 +21,13 @@ export function buildRoadMesh(
     nextSlice + 1, 1, 0,
     nextSlice, nextSlice + 1, 0,
 
-    // //right
-    // 2, 1, nextSlice + 1,
-    // 2, nextSlice + 2, nextSlice + 1,
-    //
-    // //left
-    // 3, 0, nextSlice + 0,
-    // nextSlice + 0, nextSlice + 3, 3,
+    //right
+    2, 1, nextSlice + 1,
+    2, nextSlice + 2, nextSlice + 1,
+
+    //left
+    3, 0, nextSlice + 0,
+    nextSlice + 0, nextSlice + 3, 3,
   ];
 
   const vertices: number[] = [];
@@ -65,6 +65,7 @@ export function buildRoadMesh(
     // const binormal = Vec3.normalize(Vec3.cross(new Vec3(0, 0, 1), tangent));
     // const normal = Vec3.cross(binormal, tangent);
     const normal = Vec3.cross(tangent, new Vec3(0, 0, 1));
+    const binormal = new Vec3(0,0,1);
     // const normal = new Vec3(0, 1, 0);
 
     for (let v of roadVerticesSlice) {
@@ -72,6 +73,7 @@ export function buildRoadMesh(
 
       transformed = Vec3.add(transformed, tangent.scale(v.x));
       transformed = Vec3.add(transformed, normal.scale(v.y));
+      transformed = Vec3.add(transformed, binormal.scale(v.z));
       vertices.push(transformed.x, transformed.y, transformed.z);
     }
   }

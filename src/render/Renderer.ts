@@ -229,7 +229,7 @@ export class Renderer {
 
     this.cameraTarget.copyFrom(this.followTarget);
 
-    this.cameraOptions.position.copyFrom(this.cameraPosition);
+    this.cameraOptions.position.copyFrom(this.followSmoothness==0 ? targetPosition : this.cameraPosition);
     this.cameraOptions.target.copyFrom(this.cameraTarget);
     this.cameraOptions.up.copyFrom(this.cameraUp);
   }
@@ -239,11 +239,12 @@ export class Renderer {
     this.lastTime = time;
 
     this.resizeCanvas();
-    this.updateCamera(deltaTime);
 
     if (this.updateCallback) {
       this.updateCallback(deltaTime, time);
     }
+
+    this.updateCamera(deltaTime);
 
     this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
     for (const renderClass of this.renderClasses) {
