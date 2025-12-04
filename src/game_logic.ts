@@ -6,7 +6,7 @@ import { Mesh } from "./render/Mesh.js";
 import { UnlitSolidClass, UnlitSolidInstance } from "./render/objects/UnlitSolid";
 import { Vec3 } from "./math";
 import { collideRoad, generateProceduralRoad, ProceduralRoad } from "./road/index";
-import { RenderInstance } from "./render/RenderInstance.js";
+import { clientSendCar, clientStart } from "./client.js";
 
 //some form or something to create cars based on user input before joining game
 
@@ -14,11 +14,16 @@ export default class GameLogic {
   #car: ItalianCar;
   #carInstance: UnlitSolidInstance;
   #roadInstance: UnlitSolidInstance;
+  #pid: string = "";
+  #gid: string
 
   #road: ProceduralRoad;
 
   #renderer: Renderer;
-  constructor(canvas: HTMLCanvasElement) {
+
+  constructor(canvas: HTMLCanvasElement, gid: string, clr: Vec3) {
+    this.#gid = gid;
+
     this.#car = new ItalianCar("red", "medium");
 
     this.#renderer = new Renderer({
@@ -79,20 +84,19 @@ export default class GameLogic {
     this.#renderer.addRenderClass(carClass);
   }
 
-  start() {
+  async start() {
     //game loop
     this.#renderer.onUpdate(this.loop.bind(this));
     this.#renderer.start();
+
+    this.#pid = (await clientStart(this.#gid,"medium","red")) as string
   }
 
-  loop(dt: number, time: number) {
+  async loop(dt: number, time: number) {
 
     //Applying Car Physics methods.
-
-    CarPhysics.applyAcceleration(this.#car, inputStates, dt);
-    CarPhysics.applySteering(this.#car, inputStates, dt);
-    CarPhysics.applyFriction(this.#car, dt);
-    CarPhysics.updatePosition(this.#car, CarPhysics.NextPosition(this.#car,dt));
+    const nextP = CarPhysics.update(this.#car, inputStates, dt);
+    CarPhysics.updatePosition(this.#car, nextP)
 
     let p = new Vec3(this.#car.position.x,this.#car.position.y,0);
 
@@ -109,5 +113,7 @@ export default class GameLogic {
       0.1,
     );
     this.#carInstance.rotation = new Vec3(0, 0, this.#car.theta);
+
+    clientSendCar(this.#gid, this.#pid, this.#car)
   }
 }
