@@ -3,10 +3,21 @@ import inputStates from "./input";
 import CarPhysics from "./CarPhysics";
 import { Renderer } from "./render/Renderer.js";
 import { Mesh } from "./render/Mesh.js";
-import { UnlitSolidClass, UnlitSolidInstance } from "./render/objects/UnlitSolid";
+import {
+  UnlitSolidClass,
+  UnlitSolidInstance,
+} from "./render/objects/UnlitSolid";
 import { Vec3 } from "./math";
-import { collideRoad, generateProceduralRoad, ProceduralRoad } from "./road/index";
-import { clientSendCar, clientStart } from "./client.js";
+import {
+  collideRoad,
+  generateProceduralRoad,
+  ProceduralRoad,
+} from "./road/index";
+import {
+  clientSendCar,
+  clientStart,
+  onSocketMessage,
+} from "./client.js";
 
 //some form or something to create cars based on user input before joining game
 
@@ -15,11 +26,12 @@ export default class GameLogic {
   #carInstance: UnlitSolidInstance;
   #roadInstance: UnlitSolidInstance;
   #pid: string = "";
-  #gid: string
+  #gid: string;
 
   #road: ProceduralRoad;
 
   #renderer: Renderer;
+  #carClass: UnlitSolidClass;
 
   constructor(canvas: HTMLCanvasElement, gid: string, clr: Vec3) {
     this.#gid = gid;
@@ -44,7 +56,11 @@ export default class GameLogic {
     });
 
     // Create road mesh and render class
-    const roadMesh = new Mesh(this.#renderer.gl, this.#road.positions, this.#road.indices);
+    const roadMesh = new Mesh(
+      this.#renderer.gl,
+      this.#road.positions,
+      this.#road.indices,
+    );
     const roadClass = new UnlitSolidClass(this.#renderer.gl, roadMesh);
     this.#roadInstance = roadClass.createInstance();
     this.#roadInstance.color = new Vec3(0.24, 0.26, 0.28);
@@ -75,13 +91,17 @@ export default class GameLogic {
       0, 1, 5, 0, 5, 4,
     ]);
 
-    const carMesh = new Mesh(this.#renderer.gl, cubePositions, cubeIndices);
-    const carClass = new UnlitSolidClass(this.#renderer.gl, carMesh);
-    this.#carInstance = carClass.createInstance();
+    const carMesh = new Mesh(
+      this.#renderer.gl,
+      cubePositions,
+      cubeIndices,
+    );
+    this.#carClass = new UnlitSolidClass(this.#renderer.gl, carMesh);
+    this.#carInstance = this.#carClass.createInstance();
     this.#carInstance.color = new Vec3(1, 0, 0);
     this.#carInstance.scale = new Vec3(2, 1, 2);
 
-    this.#renderer.addRenderClass(carClass);
+    this.#renderer.addRenderClass(this.#carClass);
   }
 
   async start() {
@@ -89,21 +109,22 @@ export default class GameLogic {
     this.#renderer.onUpdate(this.loop.bind(this));
     this.#renderer.start();
 
-    this.#pid = (await clientStart(this.#gid,"medium","red")) as string
+    this.#pid = (await clientStart(this.#gid, "medium", "red")) as string;
+
+    onSocketMessage(this.handleWebSocketMessage.bind(this));
   }
 
   async loop(dt: number, time: number) {
-
     //Applying Car Physics methods.
     const nextP = CarPhysics.update(this.#car, inputStates, dt);
-    CarPhysics.updatePosition(this.#car, nextP)
+    CarPhysics.updatePosition(this.#car, nextP);
 
-    let p = new Vec3(this.#car.position.x,this.#car.position.y,0);
+    let p = new Vec3(this.#car.position.x, this.#car.position.y, 0);
 
-    if(collideRoad(this.#road, p)) {
-      this.#carInstance.color = new Vec3(0,1,0);
+    if (collideRoad(this.#road, p)) {
+      this.#carInstance.color = new Vec3(0, 1, 0);
     } else {
-      this.#carInstance.color = new Vec3(1,0,0);
+      this.#carInstance.color = new Vec3(1, 0, 0);
     }
 
     // Update car render instance position
@@ -114,6 +135,8 @@ export default class GameLogic {
     );
     this.#carInstance.rotation = new Vec3(0, 0, this.#car.theta);
 
-    clientSendCar(this.#gid, this.#pid, this.#car)
+    if(this.#pid != "") clientSendCar(this.#gid, this.#pid, this.#car);
   }
+
+  handleWebSocketMessage(data: any) { console.log("recieved message: ", data)}
 }

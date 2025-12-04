@@ -16,13 +16,14 @@
   "main": "index.js",
   "scripts": {
     "dev": "concurrently \"vite\" \"npm run server\"",
-    "server": "node mkserver.js",
+    "server": "tsx mkserver.js",
     "build": "vite build"
   },
   "dependencies": {
     "express": "^5.1.0",
     "uuid": "^13.0.0",
-    "ws": "^8.18.3"
+    "ws": "^8.18.3",
+    "tsx": "^4.19.1"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",

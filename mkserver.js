@@ -5,12 +5,15 @@ const __dirname = dirname(__filename);
 import { v4 as uuidv4 } from "uuid";
 
 import express from "express";
+import { createServer } from 'http';
 import parser from "body-parser";
 import path from "path";
 
-import { Websocket } from "ws";
+import { WebSocketServer, WebSocket } from "ws";
 
 import ItalianCar from "./src/Car.js";
+
+import CarPhysics from "./src/CarPhysics.ts";
 
 //object of all games in the form: (gameid):(game object)
 const games = {};
@@ -23,30 +26,39 @@ const app = express();
 app.use("/static", express.static(path.join(__dirname, "public")));
 app.use(parser.json());
 
-const wss = new WebSocket.Server({ noServer: true });
+
+//https://betterstack.com/community/guides/scaling-nodejs/express-websockets/
+const server = createServer(app)
+const wss = new WebSocketServer({ server });
 
 wss.on("connection", (ws) => {
   ws.on("message", (msg) => {
+
     const data = JSON.parse(msg);
-    let gameid = msg.gid;
+
+
+    console.log("clients:", JSON.stringify(clients))
+    console.log(JSON.stringify(data))
+
+    let gameid = data.gid;
     if (!games[gameid]) {
       console.error("invalid gameid");
       return;
     }
-    let playerid = msg.pid;
+    let playerid = data.pid;
     if (!clients[playerid]) {
-      console.error("invaild playerid");
+      console.error("invalid playerid");
       return;
     }
 
     if (msg.type == "car") {
-      clients[playerid].tick = msg.tick;
-      clients[playerid].car.x = msg.xPos;
-      clients[playerid].car.y = msg.yPos;
-      clients[playerid].car.xvel = msg.xVel;
-      clients[playerid].car.yvel = msg.yVel;
-      clients[playerid].car.xacc = msg.xAcc;
-      clients[playerid].car.yacc = msg.yAcc;
+      clients[playerid].tick = data.tick;
+      clients[playerid].car.x = data.xPos;
+      clients[playerid].car.y = data.yPos;
+      clients[playerid].car.xvel = data.xVel;
+      clients[playerid].car.yvel = data.yVel;
+      clients[playerid].car.xacc = data.xAcc;
+      clients[playerid].car.yacc = data.yAcc;
     }
   });
 });
@@ -59,14 +71,14 @@ function broadcastState() {
   const snapshot = {
     type: "state",
     tick: serverTick++,
-    cars: clients.entries().map(([pid, data]) => ({
+    cars: Object.entries(clients).map(([pid, data]) => ({
       pid: pid,
       car: data.car,
     })),
   };
   const payload = JSON.stringify(snapshot);
   for (const ws of wss.clients) {
-    if (ws.readyState === ws.OPEN) ws.send(payload);
+    if (ws.readyState === WebSocket.OPEN) ws.send(payload);
   }
 }
 
@@ -78,8 +90,8 @@ const zeroInput = {
 };
 
 function stepPhysics() {
-  for (i in clients) {
-    const nextP = CarPhysics.update(clients[i].car, zeroInput, dt);
+  for (let i in clients) {
+    const nextP = CarPhysics.update(clients[i].car, zeroInput, tickDt);
     CarPhysics.updatePosition(clients[i].car, nextP);
   }
 }
@@ -158,13 +170,6 @@ app.get("/api/game", function (req, res) {
   res.send(JSON.stringify(packet));
 });
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-});
-
-//https://community.render.com/t/can-i-use-express-and-websocket-on-same-service-node/8015/2
-app.on("upgrade", (req, socket, head) => {
-  wss.handleUpgrade(req, socket, head, (ws) => {
-    wss.emit("connection", ws, req);
-  });
 });
