@@ -35,6 +35,13 @@ export class Renderer {
   private height: number = 0;
   private width: number = 0;
 
+  private cameraMode: 'flycam' | 'follow' = 'flycam';
+  private followTarget?: Vec3;
+  private followTargetRotation?: number;
+  private followDistance: number = 10;
+  private followHeight: number = 5;
+  private followSmoothness: number = 5;
+
   constructor(options: RendererOptions) {
     this.canvas = options.canvas;
 
@@ -85,6 +92,21 @@ export class Renderer {
 
   onUpdate(callback: (deltaTime: number, time: number) => void): void {
     this.updateCallback = callback;
+  }
+
+  setFollowTarget(position: Vec3, rotation: number): void {
+    this.followTarget = position;
+    this.followTargetRotation = rotation;
+    this.cameraMode = 'follow';
+  }
+
+  toggleCameraMode(): void {
+    this.cameraMode = this.cameraMode === 'flycam' ? 'follow' : 'flycam';
+    console.log(`Camera mode switched to: ${this.cameraMode}`);
+  }
+
+  isFollowMode(): boolean {
+    return this.cameraMode === 'follow';
   }
 
   start(): void {
@@ -143,6 +165,19 @@ export class Renderer {
   }
 
   private updateCamera(deltaTime: number): void {
+    if (this.keys.has("c")) {
+      this.toggleCameraMode();
+      this.keys.delete("c");
+    }
+
+    if (this.cameraMode === 'follow') {
+      this.updateFollowCamera(deltaTime);
+    } else {
+      this.updateFlyCamera(deltaTime);
+    }
+  }
+
+  private updateFlyCamera(deltaTime: number): void {
     const right = Vec3.normalize(Vec3.cross(this.cameraForward, this.cameraUp));
 
     let movement = new Vec3(0);
@@ -172,6 +207,27 @@ export class Renderer {
 
     const lookTarget = Vec3.add(this.cameraPosition, this.cameraForward);
     this.cameraTarget.copyFrom(lookTarget);
+
+    this.cameraOptions.position.copyFrom(this.cameraPosition);
+    this.cameraOptions.target.copyFrom(this.cameraTarget);
+    this.cameraOptions.up.copyFrom(this.cameraUp);
+  }
+
+  private updateFollowCamera(deltaTime: number): void {
+    if (!this.followTarget || this.followTargetRotation === undefined) {
+      return;
+    }
+
+    const targetX = this.followTarget.x - Math.cos(this.followTargetRotation) * this.followDistance;
+    const targetY = this.followTarget.y - Math.sin(this.followTargetRotation) * this.followDistance;
+    const targetZ = this.followHeight;
+
+    const targetPosition = new Vec3(targetX, targetY, targetZ);
+    this.cameraPosition.x += (targetPosition.x - this.cameraPosition.x) * this.followSmoothness * deltaTime;
+    this.cameraPosition.y += (targetPosition.y - this.cameraPosition.y) * this.followSmoothness * deltaTime;
+    this.cameraPosition.z += (targetPosition.z - this.cameraPosition.z) * this.followSmoothness * deltaTime;
+
+    this.cameraTarget.copyFrom(this.followTarget);
 
     this.cameraOptions.position.copyFrom(this.cameraPosition);
     this.cameraOptions.target.copyFrom(this.cameraTarget);

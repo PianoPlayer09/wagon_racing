@@ -52,6 +52,11 @@ export default class GameLogic {
       moveSpeed: 15,
     });
 
+    this.#renderer.setFollowTarget(
+      new Vec3(this.#car.position.x, this.#car.position.y, 0),
+      this.#car.theta
+    );
+
     // prettier-ignore
     const cubePositions = new Float32Array([
       -0.5, -0.5, -0.5,
@@ -144,6 +149,13 @@ export default class GameLogic {
       0.1,
     );
     this.#carInstance.rotation = new Vec3(0, 0, this.#car.theta);
+
+    if (this.#renderer.isFollowMode()) {
+      this.#renderer.setFollowTarget(
+        new Vec3(this.#car.position.x, this.#car.position.y, 0),
+        this.#car.theta
+      );
+    }
 
     if (this.#pid != "" && !this.#justResynced) clientSendCar(this.#gid, this.#pid, this.#car);
 
