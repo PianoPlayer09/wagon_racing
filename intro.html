@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <style type="text/css">
+            * {
+                padding: 0;
+                margin: 0;
+                box-sizing: border-box;
+            }
+            body.maincontainer{
+                position: relative;
+            }
+
+            div#board {
+                background: gray; 
+                min-height: 100vh;
+                display: grid;
+            }
+            form.options{
+                display: flex;
+                flex-direction: column;
+            
+                background-color: darkslateblue;
+                color: white;
+                position: absolute;
+                
+                border: 5px solid black;
+                border-radius: 20px;
+
+                top: 50%;
+                left: 50%;
+
+                transform: translate(-50%, -50%);
+            }
+            button {
+                padding: 10px;
+                font-size: 2em;
+                margin: 10px;
+            }
+            
+            div.option{
+                padding: 0.5em;
+                flex-grow:1;
+                font-size: 2em;
+            }
+            div.option > input {
+                font-size: 1em;
+                padding: 5px;
+
+                border-radius: 10px;
+            }
+            div.option > input[type='color']{
+                width: 5ch;
+                margin-left: auto;
+            }
+
+            div.option.grid {
+                display: grid;
+                grid-template-areas: 
+                    "name color"
+                    "range range";
+            }
+            div.option > input[type='range']{
+                grid-area: range;
+            }
+
+            div.option.flex{
+                display: flex;
+                justify-content: space-around;
+            }
+            div.option > label {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+
+                padding: 10px;
+                border: 2px solid black;
+                border-radius: 10px;
+
+            }
+            div.option > input[type='radio']{
+                display:none;
+            }
+            div.option > input[type='radio']:checked + label {
+                
+                background: purple;
+                color: white;
+            }
+        </style>
+    </head>
+    <body class="maincontainer">  
+        <div id="board">
+
+        </div>
+        
+        <form class="options" action="/minesweeper/game">
+            
+            <div class="option">
+                <span>Name</span>
+                <input name='name' id="name"/>
+            </div>
+            <div class="option grid">
+                <span>Color</span>
+                <input id="color" type="color" value="#FF0000" />
+            </div>
+            
+            <div class="option flex">
+                <input name='difficulty' id='easy' type="radio" value="easy"/>
+                <label for="easy">Light</label>
+                <input name='difficulty' id='med' type="radio" value="med"/>
+                <label for="med">Medium</label>
+                <input name='difficulty' id='hard' type="radio" value="hard"/>
+                <label for="hard">Heavy</label>
+            </div>
+            <button id="play" type="submit" >Play Game!</button>
+        </form>
+
+        <script type="text/javascript">
+
+            let rootElement = null;
+            let board = null;
+
+            function init(){
+
+
+            }
+
+      
+                
+            window.onload = init;
+        </script>
+    </body>
+</html>
